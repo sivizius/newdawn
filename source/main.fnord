@@ -1,6 +1,10 @@
+func main ( qword argc, qword args )
+  foobar ( 1, 2, 3 )
+  return
+end_func
 func foobar ( qword arg1, byte char, word stuff )
   qword bar = 0
   return
 end_func
 
-foobar ( 123, 456, 789 )
+main ( 5, null )

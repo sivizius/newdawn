@@ -97,7 +97,9 @@ match =amd64, __machine__
   done                                  equ                                     true
   macro stackspace                      size
   \{
-    sub                                 rsp,                                    size
+    if ( size )
+      sub                               rsp,                                    size
+    end if
   \}
   macro stackframe                      size
   \{

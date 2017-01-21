@@ -123,7 +123,7 @@ macro var@@flist                                                                
         tmp@rndList                     =                                       ((( lfsrseed@rndList * 2711 ) + random3@rndList ))
         tmp@rndList                     =                                       ( tmp@rndList mod ( var@@functions@@ctr + 1 ))
 ;        tmp@rndList                     =                                       lfsrseed@rndList
-;        displayValue '(0x', tmp@rndList
+        ;displayValue '0x', tmp@rndList
         var@@functions                  tmp@rndList
 ;        displayValue ')0x', tmp@rndList
       end if
@@ -146,9 +146,9 @@ macro function                          something&
     local _type_, _size_, _value_
     macro theFunction
     \\{
-      local length, k, lfsrseed, random0, random1, random2, random3, ptr
+      \local length, k, lfsrseed, random0, random1, random2, random3, ptr
       done                              equ
-      match +, __used_#\name#__
+      match =\name, __used_#\name#__
       \\\{
         display 'define function ', \`name, '()', 10
         __pad__                         16,                                     1
@@ -178,15 +178,16 @@ macro function                          something&
       \\\}
       match , done
       \\\{
-        display 'unused function: »', \`name, '«!', 10
+        display 'unused function ', \`name, '()', 10
         size                            =                                       null
         ..\#\name\#@@address            =                                       null
       \\\}
     \\}
     addList                             var@@functions,                         < theFunction >
-    \name\#@@type                        equ                                     op@@tFunction
-    \name\#@@value                       =                                       ( ..\#\name\#@@address )
-    \name\#@@size                        =                                       size
+    done                                equ                                     +
+    \name\#@@type                       equ                                     op@@tFunction
+    \name\#@@value                      =                                       ( ..\#\name\#@@address )
+    \name\#@@size                       =                                       size
     var@@functions_count                =                                       ( var@@functions_count + 1 )
     displayValue 'funtion()     = @0x', \name\#@@value
     displayValue 'funtion.size  =  0x', \name\#@@size
@@ -199,25 +200,25 @@ macro function                          something&
       \\\{
         if      ( state = functions@@mOpen )
           if ( \\\`argument eq '(' )
-            state                         =                                       functions@@mValue
+            state                       =                                       functions@@mValue
           else
             display '[asm:functions] argument-list has to start with »(«!', 10
             err
           end if
         else if ( state = functions@@mValue )
           if ( \\\`argument eq ')' )
-            state                         =                                       functions@@mClose
+            state                       =                                       functions@@mClose
           end if
           if (( \\\`argument eq ')' ) | ( \\\`argument eq ',' ))
-            count_arguments               =                                       ( count_arguments + 1 )
-            temp op@@type                 current
+            count_arguments             =                                       ( count_arguments + 1 )
+            temp op@@type               current
             if ( count_arguments >= functions@@arguments.size )
               display '[asm:functions] too many arguments! adjust functions@@arguments.size.', 10
               err
             else
-              store                       word temp\\\#@@type                      at functions@@arguments:(( 16 * count_arguments ) + 0 )
-              store                       word temp\\\#@@size                      at functions@@arguments:(( 16 * count_arguments ) + 4 )
-              store                       word temp\\\#@@value                     at functions@@arguments:(( 16 * count_arguments ) + 8 )
+              store                     word temp\\\#@@type                      at functions@@arguments:(( 16 * count_arguments ) + 0 )
+              store                     word temp\\\#@@size                      at functions@@arguments:(( 16 * count_arguments ) + 4 )
+              store                     word temp\\\#@@value                     at functions@@arguments:(( 16 * count_arguments ) + 8 )
             end if
           end if
         else if ( state = functions@@mClose )
@@ -227,36 +228,36 @@ macro function                          something&
           display '[asm:functions] epic fail!', 10
           err
         end if
-        done                              equ
+        done                            equ
         match =(, argument
         \\\\{
-          current                         equ
-          done                            equ                                     +
+          current                       equ
+          done                          equ                                     +
         \\\\}
         match =,, argument
         \\\\{
           ;display ';'
-          current                         equ
-          done                            equ                                     +
+          current                       equ
+          done                          equ                                     +
         \\\\}
         match =), argument
         \\\\{
           ;display 10
-          done                            equ                                     +
+          done                          equ                                     +
         \\\\}
         match , done
         \\\\{
           ;display '»', \\\`argument, '«'
-          current                         equ                                     current argument
+          current                       equ                                     current argument
         \\\\}
       \\\}
-      count_parameters                    =                                       ( 0 - 1 )
-      state                               =                                       functions@@mOpen
+      count_parameters                  =                                       ( 0 - 1 )
+      state                             =                                       functions@@mOpen
       irps parameter, parameter_list
       \\\{
         if      ( state = functions@@mOpen )
           if ( \\\`parameter eq '(' )
-            state                         =                                       functions@@mType
+            state                       =                                       functions@@mType
           else
             display '[asm:functions] parameter-list has to start with »(«!', 10
             err
@@ -267,33 +268,33 @@ macro function                          something&
               display '[asm:functions] type expected!', 10
               err
             else
-              state                       =                                       functions@@mClose
+              state                     =                                       functions@@mClose
             end if
           else
-            count_parameters              =                                       ( count_parameters + 1 )
+            count_parameters            =                                       ( count_parameters + 1 )
             display 'type: ', \\\`parameter, 10
-            state                         =                                       functions@@mName
+            state                       =                                       functions@@mName
           end if
         else if ( state = functions@@mName )
           display 'name: ', \\\`parameter, 10
-          state                           =                                       functions@@mNext
+          state                         =                                       functions@@mNext
           displayValue 'arg #0x', count_parameters
           if ( count_arguments >= functions@@arguments.size )
             display '[asm:functions] too many parameters! adjust functions@@arguments.size.', 10
             err
           else
-            load                          _type_  word                            from functions@@arguments:(( 16 * count_parameters ) + 0 )
-            load                          _size_  word                            from functions@@arguments:(( 16 * count_parameters ) + 4 )
-            load                          _value_ qword                           from functions@@arguments:(( 16 * count_parameters ) + 8 )
+            load                        _type_  word                            from functions@@arguments:(( 16 * count_parameters ) + 0 )
+            load                        _size_  word                            from functions@@arguments:(( 16 * count_parameters ) + 4 )
+            load                        _value_ qword                           from functions@@arguments:(( 16 * count_parameters ) + 8 )
           end if
           displayValue '  type:   0x', _type_
           displayValue '  size:   0x', _size_
           displayValue '  value:  0x', _value_
         else if ( state = functions@@mNext )
           if      ( \\\`parameter eq ',' )
-            state                         =                                       functions@@mType
+            state                       =                                       functions@@mType
           else if ( \\\`parameter eq ')' )
-            state                         =                                       functions@@mClose
+            state                       =                                       functions@@mClose
           end if
         else if ( state = functions@@mClose )
           display '[asm:functions] an unexpected thing after parameter-list!', 10
@@ -303,8 +304,8 @@ macro function                          something&
           err
         end if
       \\\}
-      call                                ..\#\name\#@@address
-      __used_#\name#__                     equ                                     +
+      call                              ..\#\name\#@@address
+      __used_#\name#__                 equ                                     \name
     \\}
   \}
   macro __content__

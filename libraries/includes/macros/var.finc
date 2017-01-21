@@ -16,6 +16,7 @@ macro var@@llist_reset {}
 
 macro var@@type                         type,     ddef,     rdef,     size,     prefix,   vartype
 {
+  local reserve, reserve_ptr
   ;display '[asm:var] define type »', `type, '«.', 10
   var@@#type#_type                      =                                       vartype
   newList                               var@@d_#type#_value
@@ -29,7 +30,7 @@ macro var@@type                         type,     ddef,     rdef,     size,     
   macro var@@llist
   \{
     __pad__                             size,                                   1
-    .@@#type:
+    reserve                             =                                       ( $ )
       rdef                              __local_#type#__
     var@@lsize                          =                                       ( $ )
     var@@llist
@@ -58,7 +59,7 @@ macro var@@type                         type,     ddef,     rdef,     size,     
         displayValue 'random1   = 0x', random1
         displayValue 'random2   = 0x', random2
       \\}
-    .@@#type#_ptr:
+    reserve_ptr                         =                                       ( $ )
       repeat (( 1 shl length ) - 1 )
         lfsrseed                        __GLFSR__                               lfsrseed,                               ( length )
         if ( lfsrseed <= __local_#type#__ )
@@ -71,7 +72,7 @@ macro var@@type                         type,     ddef,     rdef,     size,     
           k                             =                                       ((( lfsrseed * 2711 ) + random3 ))
           k                             =                                       ( k mod ( __local_#type#__ ))
           k                             =                                       lfsrseed
-          dq                            ( .@@#type + (( k - 1 ) * size ))
+          dq                            ( reserve + (( k - 1 ) * size ))
           ;displayValue '#0x', k
         end if
       end repeat
@@ -129,7 +130,7 @@ macro var@@type                         type,     ddef,     rdef,     size,     
           macro var@@llist_vars
           \\\\{
             var@@llist_vars
-            load                        ptr qword                               from ( .@@#type#_ptr + ( var@@#type#_ctr * __qword__ ))
+            load                        ptr qword                               from ( reserve_ptr + ( var@@#type#_ctr * __qword__ ))
             var\\\\#@@value             =                                       ptr
             var@@#type#_ctr             =                                       ( var@@#type#_ctr + 1 )
             ;display 'local data ', `type, ' ', \\\`var, ':', 10
