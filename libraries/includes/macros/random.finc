@@ -1,0 +1,283 @@
+struc __random__
+{
+  random@@seed                          __hash_char__                           random@@seed,                           0x2342
+  random@@seed                          __hash_char__                           random@@seed,                           0x1337
+  random@@seed                          __hash_char__                           random@@seed,                           0x19961003
+  random@@seed                          __hash_char__                           random@@seed,                           0xc0ffee
+  .                                     =                                       random@@seed
+}
+if ( defined __random_seed__ )          ;get from command line eq with ;>fasm -D__random_seed__=$[RANDOM+(RANDOM<<16)+(RANDOM<<32)+(RANDOM<<48)] <source> <binary>
+  displayValue '[asm:random] haz randomseed: 0x', (( __random_seed__ ) and 0xffffffffffffffff )
+  random@@seed                          =                                       ( %t and ((( __random_seed__ ))) and 0xffffffffffffffff )
+else
+  random@@seed                          =                                       ( %t )
+end if
+random@@seed                            __random__
+
+match =amd64, __machine__
+{
+  rndop@@badd                           =                                       0x00
+  rndop@@bor                            =                                       0x08
+  rndop@@badc                           =                                       0x10
+  rndop@@bsbb                           =                                       0x18
+  rndop@@band                           =                                       0x20
+  rndop@@bsub                           =                                       0x28
+  rndop@@bxor                           =                                       0x30
+  rndop@@bcmp                           =                                       0x38
+  rndop@@btest                          =                                       0x84
+  rndop@@bxchg                          =                                       0x86
+  rndop@@bmov                           =                                       0x88
+  rndop@@radd                           =                                       ( 0 shl 3 )
+  rndop@@ror                            =                                       ( 1 shl 3 )
+  rndop@@radc                           =                                       ( 2 shl 3 )
+  rndop@@rsbb                           =                                       ( 3 shl 3 )
+  rndop@@rand                           =                                       ( 4 shl 3 )
+  rndop@@rsub                           =                                       ( 5 shl 3 )
+  rndop@@rxor                           =                                       ( 6 shl 3 )
+  rndop@@rcmp                           =                                       ( 7 shl 3 )
+
+  macro rndop@@rmr                      op,                                     dst,                                    src
+  \{
+    local rand, tmp
+     rand                                __weak_random__
+  ;  rand = weak
+    ;weak = weak + 1
+    if      ( dst in < registers@@all > & src in < registers@@all > )
+      if ( dst#@@size = src#@@size )
+        rand                            =                                       ( rand and 2 )
+        if      ( dst#@@size = __qword__ )
+          db                            0x48
+          db                            ( rndop@@b#op + rand + 1 )
+        else if ( dst#@@size = __dword__ )
+          db                            ( rndop@@b#op + rand + 1 )
+        else if ( dst#@@size = __word__ )
+          db                            0x66
+          db                            ( rndop@@b#op + rand + 1 )
+        else if ( dst#@@size = __byte__ )
+          db                            ( rndop@@b#op + rand )
+        else
+          display '[asm:rndop] rmr: internal error, something is wrong!', 10
+          err
+        end if
+        if ( rand )
+          db                            ( 0xc0 + (( dst#@@value ) shl 3 ) + ( src#@@value ))
+        else
+          db                            ( 0xc0 + (( src#@@value ) shl 3 ) + ( dst#@@value ))
+        end if
+      else
+        display '[asm:rndop] rmr: source and destination of different size!', 10
+        err
+      end if
+    else
+      tmp                               =                                       ( rand mod 3 )
+      if      (( ~ op eq mov ) & dst eq al & src eqtype 1 & src = ( src and 0xff ))
+        if ( rand and 1 )
+          ;( mov AL, imm8 )
+          db                            ( rndop@@b#op + 4 )
+          db                            src
+        else
+          ;( mov r/m8, imm8 )
+          db                            0x80, ( rndop@@r#op + 0xc0 )
+          db                            src
+        end if
+      else if (( ~ op eq mov ) & dst eq ax & src eqtype 1 & src = ( src and 0xffff ))
+        db                              0x66
+        if ( src = ( src and 0xff ))
+          if      ( tmp = 0 )
+            ;( mov AX, imm16 )
+            db                          ( rndop@@b#op + 5 )
+            dw                          src
+          else if ( tmp = 1 )
+            ;( mov r/m16, imm8 )
+            db                          0x83, ( rndop@@r#op + 0xc0 )
+            db                          src
+          else if ( tmp = 2 )
+            ;( mov r/m16, imm16 )
+            db                          0x81, ( rndop@@r#op + 0xc0 )
+            dw                          src
+          end if
+        else
+          if      ( rand )
+            ;( mov AX, imm16 )
+            db                          ( rndop@@b#op + 5 )
+            dw                          src
+          else
+            ;( mov r/m16, imm16 )
+            db                          0x81, ( rndop@@r#op + 0xc0 )
+            dw                          src
+          end if
+        end if
+      else if (( ~ op eq mov ) & dst eq eax & src eqtype 1 & src = ( src and 0xffffffff ))
+        if ( src = ( src and 0xff ))
+          if      ( tmp = 0 )
+            ;( mov EAX, imm32 )
+            db                          ( rndop@@b#op + 5 )
+            dd                          src
+          else if ( tmp = 1 )
+            ;( mov r/m32, imm8 )
+            db                          0x83, ( rndop@@r#op + 0xc0 )
+            db                          src
+          else if ( tmp = 2 )
+            ;( mov r/m32, imm32 )
+            db                          0x81, ( rndop@@r#op + 0xc0 )
+            dd                          src
+          end if
+        else
+          if      ( rand )
+            ;( mov EAX, imm32 )
+            db                          ( rndop@@b#op + 5 )
+            dd                          src
+          else
+            ;( mov r/m32, imm32 )
+            db                          0x81, ( rndop@@r#op + 0xc0 )
+            dd                          src
+          end if
+        end if
+      else if (( ~ op eq mov ) & dst eq rax & src eqtype 1 )
+        db                              0x48
+        if ( src > ( 1 shl 63 ))
+          display '[asm:rndop] invalid operant size!', 10
+          err
+        end if
+        if ( src = ( src and 0xff ))
+          if      ( tmp = 0 )
+            ;( mov RAX, imm32 )
+            db                          ( rndop@@b#op + 5 )
+            dd                          src
+          else if ( tmp = 1 )
+            ;( mov r/m64, imm8 )
+            db                          0x83, ( rndop@@r#op + 0xc0 )
+            db                          src
+          else if ( tmp = 2 )
+            ;( mov r/m64, imm32 )
+            db                          0x81, ( rndop@@r#op + 0xc0 )
+            dd                          src
+          end if
+        else
+          if      ( rand )
+            ;( mov RAX, imm32 )
+            db                          ( rndop@@b#op + 5 )
+            dd                          src
+          else
+            ;( mov r/m64, imm32 )
+            db                          0x81, ( rndop@@r#op + 0xc0 )
+            dd                          src
+          end if
+        end if
+      else if ( dst in < registers@@all > & src eqtype 1 )
+        if ( rand and 1 )                                                                                                 ;should only altered if value is < 256
+          if      ( dst#@@size = __qword__ )
+            op                          dst,                                    src
+          else if ( dst#@@size = __dword__ )
+            op                          dst,                                    dword src
+          else if ( dst#@@size = __word__ )
+            op                          dst,                                    word  src
+          else if ( dst#@@size = __byte__ )
+            op                          dst,                                    byte  src                               ;byte should be ignored
+          end if
+        else
+          op                            dst,                                    src
+        end if
+      else
+        op                              dst,                                    src
+      end if
+    end if
+  \}
+  macro rndop@@cmp                      op,                                     op0,                                    op1
+  \{
+    local rand
+    if      ( op0 in < registers@@all > & op1 in < registers@@all > )
+      rand                              __weak_random__
+      rand                              =                                       ( rand and 2 )
+      if ( op0#@@size = op1#@@size )
+        if      ( op0#@@size = __qword__ )
+          db                            0x48
+          db                            ( rndop@@b#op + 1 )
+        else if ( op0#@@size = __dword__ )
+          db                            ( rndop@@b#op + 1 )
+        else if ( op0#@@size = __word__ )
+          db                            0x66
+          db                            ( rndop@@b#op + 1 )
+        else if ( op0#@@size = __byte__ )
+          db                            ( rndop@@b#op )
+        else
+          display '[asm:rndop] cmp: internal error, something is wrong!', 10
+          err
+        end if
+        if ( rand )
+          db                            ( 0xc0 + (( op0#@@value ) shl 3 ) + ( op1#@@value ))
+        else
+          db                            ( 0xc0 + (( op1#@@value ) shl 3 ) + ( op0#@@value ))
+        end if
+      else
+        display '[asm:rndop] cmp: op0 and op1 of different size!', 10
+        err
+      end if
+    else
+      op                                op0,                                    op1
+    end if
+  \}
+  match =true, __hazPolymorphism__
+  \{
+    display '[asm:rndop] haz polymorphism!', 10
+    macro adc                           dst,                                    src
+    \\{
+      rndop@@rmr                        adc,                                    dst,                                    src
+    \\}
+    macro add                           dst,                                    src
+    \\{
+      rndop@@rmr                        add,                                    dst,                                    src
+    \\}
+    macro and                           dst,                                    src
+    \\{
+      rndop@@rmr                        and,                                    dst,                                    src
+    \\}
+    macro or                            dst,                                    src
+    \\{
+      rndop@@rmr                        or,                                     dst,                                    src
+    \\}
+    macro cmp                           dst,                                    src
+    \\{
+      rndop@@rmr                        cmp,                                    dst,                                    src
+    \\}
+    macro mov                           dst,                                    src
+    \\{
+      rndop@@rmr                        mov,                                    dst,                                    src
+    \\}
+    macro sbb                           dst,                                    src
+    \\{
+      rndop@@rmr                        sbb,                                    dst,                                    src
+    \\}
+    macro sub                           dst,                                    src
+    \\{
+      rndop@@rmr                        sub,                                    dst,                                    src
+    \\}
+    macro test                          dst,                                    src
+    \\{
+      rndop@@cmp                        test,                                   dst,                                    src
+    \\}
+    macro xor                           dst,                                    src
+    \\{
+      rndop@@rmr                        xor,                                    dst,                                    src
+    \\}
+    macro xchg                          dst,                                    src
+    \\{
+      rndop@@cmp                        xchg,                                   dst,                                    src
+    \\}
+  \}
+  newList                               rndop@@list
+  macro rndop@@putOrders
+  \{
+    rndList                             rndop@@list
+    newList                             rndop@@list
+  \}
+  macro rndop@@newOrders                [ order ]
+  \{
+    common
+      local quequeque, k
+      newQueque                         quequeque
+    forward
+      addQueque                         quequeque,                              order
+      addList                           rndop@@list,                            quequeque
+  \}
+}

@@ -1,0 +1,3 @@
+*.fasm  linguist-language=Assembly
+*.fnord linguist-language=Assembly
+

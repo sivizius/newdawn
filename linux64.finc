@@ -1,0 +1,409 @@
+dqVars fix
+ddVars fix
+dwVars fix
+dbVars fix
+strVars fix
+rqVars fix
+rdVars fix
+rwVars fix
+rbVars fix
+
+
+
+struc db                                [ data ]
+{
+  common
+  .                                     db                                      data
+  .self                                 =                                       .
+  .size                                 =                                       ( $ - . )
+}
+struc str                               [ string ]
+{
+  common
+  .len                                  dw                                      .size
+  .                                     db                                      string
+  if defined _cobj_
+    _cobj_                              =                                       ( _cobj_ + 1 )
+  end if
+}
+struc dw                                [ data ]
+{
+  common
+  .                                     dw                                      data
+  .self                                 =                                       .
+  .size                                 =                                       ( $ - . )
+}
+struc dd                                [ data ]
+{
+  common
+  .                                     dd                                      data
+  .self                                 =                                       .
+  .size                                 =                                       ( $ - . )
+}
+struc dq                                [ data ]
+{
+  common
+  .                                     dq                                      data
+  .self                                 =                                       .
+  .size                                 =                                       ( $ - . )
+}
+struc hb                                [ value ]
+{
+  common
+    local  size
+    size                                =                                       0
+    .                                   =                                       $
+    .self                               =                                       $
+  forward
+    repeat 2
+      char                              =                                       ( '0' + ((( value ) shr (  8 - ( % * 4 ))) and 0x0F ))
+      if ( char > '9' )
+        char                            =                                       ( char + 'a' - '9' - 1 )
+      end if
+      db                                char
+    end repeat
+    size                                =                                       size + 2
+  common
+    .size                               =                                       size
+}
+macro hb                                [ value ]
+{
+  forward
+    repeat 2
+      char                              =                                       ( '0' + ((( value ) shr (  8 - ( % * 4 ))) and 0x0F ))
+      if ( char > '9' )
+        char                            =                                       ( char + 'a' - '9' - 1 )
+      end if
+      db                                char
+    end repeat
+}
+struc hw                                [ value ]
+{
+  common
+    local  size
+    size                                =                                       0
+    .                                   =                                       $
+    .self                               =                                       $
+  forward
+    repeat 4
+      char                              =                                       ( '0' + ((( value ) shr ( 16 - ( % * 4 ))) and 0x0F ))
+      if ( char > '9' )
+        char                            =                                       ( char + 'a' - '9' - 1 )
+      end if
+      db                                char
+    end repeat
+    size                                =                                       size + 4
+  common
+    .size                               =                                       size
+}
+macro hw                                [ value ]
+{
+  forward
+    repeat 4
+      char                              =                                       ( '0' + ((( value ) shr ( 16 - ( % * 4 ))) and 0x0F ))
+      if ( char > '9' )
+        char                            =                                       ( char + 'a' - '9' - 1 )
+      end if
+      db                                char
+    end repeat
+}
+struc hd                                [ value ]
+{
+  common
+    local  size
+    size                                =                                       0
+    .                                   =                                       $
+    .self                               =                                       $
+  forward
+    repeat 8
+      char                              =                                       ( '0' + ((( value ) shr ( 32 - ( % * 4 ))) and 0x0F ))
+      if ( char > '9' )
+        char                            =                                       ( char + 'a' - '9' - 1 )
+      end if
+      db                                char
+    end repeat
+    size                                =                                       size + 8
+  common
+    .size                               =                                       size
+}
+macro hd                                [ value ]
+{
+  forward
+    repeat 8
+      char                              =                                       ( '0' + ((( value ) shr ( 32 - ( % * 4 ))) and 0x0F ))
+      if ( char > '9' )
+        char                            =                                       ( char + 'a' - '9' - 1 )
+      end if
+      db                                char
+    end repeat
+}
+struc hq                                [ value ]
+{
+  common
+    local  size
+    size                                =                                       0
+    .                                   =                                       $
+    .self                               =                                       $
+  forward
+    repeat 16
+      char                              =                                       ( '0' + ((( value ) shr ( 64 - ( % * 4 ))) and 0x0F ))
+      if ( char > '9' )
+        char                            =                                       ( char + 'a' - '9' - 1 )
+      end if
+      db                                char
+    end repeat
+    size                                =                                       size + 16
+  common
+    .size                               =                                       size
+}
+macro hq                                [ value ]
+{
+  forward
+    repeat 16
+      char                              =                                       ( '0' + ((( value ) shr ( 64 - ( % * 4 ))) and 0x0F ))
+      if ( char > '9' )
+        char                            =                                       ( char + 'a' - '9' - 1 )
+      end if
+      db                                char
+    end repeat
+}
+struc rb                                count
+{
+  .                                     rb                                      count
+  .self                                 =                                       .
+  .size                                 =                                       ( 1 * count )
+}
+struc rw                                count
+{
+  .                                     rw                                      count
+  .self                                 =                                       .
+  .size                                 =                                       ( 2 * count )
+}
+struc rd                                count
+{
+  .                                     rd                                      count
+  .self                                 =                                       .
+  .size                                 =                                       ( 4 * count )
+}
+struc rq                                count
+{
+  .                                     rq                                      count
+  .self                                 =                                       .
+  .size                                 =                                       ( 8 * count )
+}
+struc ab                                count
+{
+  .size                                 =                                       ( 1 * count )
+  .self                                 =                                       _alloc_
+  label . at _alloc_
+  _alloc_                               =                                       ( _alloc_ + ( 1 * count ))
+}
+struc aw                                count
+{
+  .size                                 =                                       ( 2 * count )
+  .self                                 =                                       _alloc_
+  label . at _alloc_
+  _alloc_                               =                                       ( _alloc_ + ( 2 * count ))
+}
+struc ad                                count
+{
+  .size                                 =                                       ( 4 * count )
+  .self                                 =                                       _alloc_
+  label . at _alloc_
+  _alloc_                               =                                       ( _alloc_ + ( 4 * count ))
+}
+struc aq                                count
+{
+  .size                                 =                                       ( 8 * count )
+  .self                                 =                                       _alloc_
+  label . at _alloc_
+  _alloc_                               =                                       ( _alloc_ + ( 8 * count ))
+}
+struc adq                               count
+{
+  .size                                 =                                       ( 16 * count )
+  .self                                 =                                       _alloc_
+  label . at _alloc_
+  _alloc_                               =                                       ( _alloc_ + ( 16 * count ))
+}
+
+
+struc __weak_random__
+{
+  ;random@@seed                          __hash_char__                           random@@seed,                           'weakweak'
+  .                                     __random__
+  ;.                                     =                                       random@@seed
+}
+macro __save__                          save,                                   temp
+{
+  if ( save eq )
+    display                             '[asm] failed to save nothing in __save__!'
+    err
+  else if ( temp eq )
+    push                                save
+  else
+    if ( save eq temp )
+      push                              save
+    else
+      display                           '[asm] __save__: ', save ' != ', temp, 10
+    end if
+  end if
+}
+macro __pad__                           size,                                   mode
+{
+  local k
+  k                                     =                                       ((( $ + size - 1 ) and ( 0 - size )) - $ )
+  if ( mode eq | mode = 0 )
+    while ( k )
+      tmp                               __random__
+      if      ( k >= __qword__ )
+        k                               =                                       ( k - __qword__ )
+        dq                              tmp
+      else if ( k >= __dword__ )
+        k                               =                                       ( k - __dword__ )
+        dd                              ( tmp and 0xffffffff )
+      else if ( k >= __word__ )
+        k                               =                                       ( k - __word__ )
+        dw                              ( tmp and 0xffff )
+      else if ( k >= __byte__ )
+        k                               =                                       ( k - __byte__ )
+        db                              ( tmp and 0xff )
+      end if
+    end while
+  else if ( mode = 1 )
+    times ( k )                         nop
+  else if ( mode = 2 )
+    times ( k )                         db                                      0
+  end if
+}
+virtual                                 at null
+end virtual
+virtual                                 at null
+end virtual
+macro __load__                          save,                                   temp
+{
+  if ( save eq )
+    display                             '[asm] failed to load nothing in __load__!'
+    err
+  else if ( temp eq )
+    pop                                 save
+  else
+    if ( save eq temp )
+      pop                               save
+    else
+      display                           '[asm] __load__: ', save ' != ', temp, 10
+    end if
+  end if
+}
+macro __value__                         this,                                   value
+{
+  match [addr], value
+  \{
+    this.type                           =                                       'addr'
+  \}
+  if ( value in <> )
+}
+macro __op__                            this,                                   op
+{
+  match =byte value, op
+  \{
+    this.size                           =                                       1
+    this.type                           =                                       'byte'
+  \}
+  match =word value, op
+  \{
+    this.size                           =                                       2
+    this.type                           =                                       'word'
+  \}
+  match =dword value, op
+  \{
+    this.size                           =                                       4
+    this.type                           =                                       'dword'
+  \}
+  match =pword value, op
+  \{
+    this.size                           =                                       6
+    this.type                           =                                       'pword'
+  \}
+  match =fword value, op
+  \{
+    this.size                           =                                       6
+    this.type                           =                                       'fword'
+  \}
+  match =qword value, op
+  \{
+    this.size                           =                                       8
+    this.type                           =                                       'qword'
+  \}
+  match =tbyte value, op
+  \{
+    this.size                           =                                       10
+    this.type                           =                                       'tbyte'
+  \}
+  match =tword value, op
+  \{
+    this.size                           =                                       10
+    this.type                           =                                       'tword'
+  \}
+  match =dqword value, op
+  \{
+    this.size                           =                                       16
+    this.type                           =                                       'dqword'
+  \}
+  match =xword value, op
+  \{
+    this.size                           =                                       16
+    this.type                           =                                       'xword'
+  \}
+  match =qqword value, op
+  \{
+    this.size                           =                                       32
+    this.type                           =                                       'qqword'
+  \}
+  match =yqword value, op
+  \{
+    this.size                           =                                       32
+    this.type                           =                                       'yword'
+  \}
+  match value, op
+  \{
+    this.size                           =                                       0
+    __value__                           this,                                   value
+  \}
+}
+;( other macros )
+macro sbaSignature                      off
+{
+  if ( off eq )
+  else
+    rb  off
+  end if
+  db  0x13, 0x37, 0x23, 0x42, 0x19, 0x96, 0x10, 0x03
+}
+macro pad                               segments
+{
+  if ( segments eq )
+    if (( $ and 0x0000000000000fff ) = 0 )
+    else
+      rb                                ( 4096 - ( $ and 0x0000000000000fff ))
+    end if
+  else
+    rb                                  (( 0x1000 * segments ) + ( _start and 0xfffffffffffff000 ) - $ )
+  end if
+}
+macro global [ ignore ]
+{
+  ;< empty >
+}
+macro remark ignore
+{
+  match +,-
+}
+macro rem ignore
+{
+  match +,-
+}
+macro do ignore
+{
+  match +,+
+}

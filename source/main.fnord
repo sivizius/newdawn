@@ -1,0 +1,6 @@
+func foobar ( qword arg1, byte char, word stuff )
+  qword bar = 0
+  return
+end_func
+
+foobar ( 123, 456, 789 )

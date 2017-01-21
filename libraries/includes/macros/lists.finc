@@ -1,0 +1,134 @@
+macro newList                           list
+{
+  macro list                            arg
+  \{
+    if      ( arg < 0 )
+      display '[asm:lists] negative index!', 10
+      err
+    else if ( arg > list#@@ctr )
+      display '[asm:lists] index out of bounds!', 10
+      err
+    end if
+  \}
+  list#@@ctr                            =                                       ( 0 - 1 )
+}
+macro addList                           list,                                   item
+{
+  match , item
+  \{
+    display '[asm:list] nothing to add!', 10
+    err
+  \}
+  local y
+  list#@@ctr                            =                                       ( list#@@ctr + 1 )
+  y                                     =                                       ( list#@@ctr )
+  macro list                            arg
+  \{
+    list arg
+    if ( defined y )
+      if ( arg = y )
+        item
+      end if
+    end if
+  \}
+}
+struc ctrList                           list
+{
+  .                                     =                                       ( list#@@ctr + 1 )
+}
+
+macro rndList                           list
+{
+  local modulo, size
+  modulo                                ctrList                                 list
+  tmp@rndList                           =                                       ( modulo )
+  size                                  =                                       2
+  lfsrseed@rndList                      =                                       null
+  random0@rndList                       __random__
+  random1@rndList                       __random__
+  random2@rndList                       __random__
+  random3@rndList                       __random__
+  while ( tmp@rndList )
+    tmp@rndList                         =                                       ( tmp@rndList shr 1 )
+    size                                =                                       ( size + 1 )
+  end while
+  while ( lfsrseed@rndList = 0 )
+    lfsrseed@rndList                    __random__
+    lfsrseed@rndList                    =                                       ( lfsrseed@rndList mod (( 1 shl size ) - 1 ))
+  end while
+  match +,-
+  \{
+    displayValue 'modulo            = 0x', modulo
+    displayValue 'size              = 0x', size
+    displayValue 'max:                0x', ( 1 shl size )
+    displayValue 'lfsrseed@rndList  = 0x', lfsrseed@rndList
+    displayValue 'random0@rndList   = 0x', random0@rndList
+    displayValue 'random1@rndList   = 0x', random1@rndList
+    displayValue 'random2@rndList   = 0x', random2@rndList
+  \}
+  repeat (( 1 shl size ) - 1 )
+    lfsrseed@rndList                    __GLFSR__                               lfsrseed@rndList,                               ( size )
+    ;displayValue 'lfsrseed@rndList 0x', lfsrseed@rndList
+    if ( lfsrseed@rndList <= modulo )
+      tmp@rndList                       =                                       ((( lfsrseed@rndList * 2719 ) + random0@rndList ))
+      tmp@rndList                       =                                       ( tmp@rndList mod modulo )
+      tmp@rndList                       =                                       ((( lfsrseed@rndList * 2729 ) + random1@rndList ))
+      tmp@rndList                       =                                       ( tmp@rndList mod modulo )
+      tmp@rndList                       =                                       ((( lfsrseed@rndList * 2731 ) + random2@rndList ))
+      tmp@rndList                       =                                       ( tmp@rndList mod modulo )
+      tmp@rndList                       =                                       ((( lfsrseed@rndList * 2711 ) + random3@rndList ))
+      tmp@rndList                       =                                       ( tmp@rndList mod modulo )
+;      tmp@rndList                       =                                       lfsrseed@rndList
+;      displayValue '(0x', tmp@rndList
+      list                              tmp@rndList
+;      displayValue ')0x', tmp@rndList
+    end if
+  end repeat
+}
+macro newQueque                         queque
+{
+  macro queque
+  \{
+    if      ( queque\#@@ptr < ( 0 - 1 ))
+      display '[asm:queque] negative index of »', `queque, '«!', 10
+      err
+    else if ( queque\#@@ptr >= queque\#@@ctr )
+      display '[asm:queque] index of »', `queque, '« out of bounds!', 10
+      displayValue 'pointer: 0x', queque\#@@ptr
+      displayValue 'counter: 0x', queque\#@@ctr
+      err
+    else
+    end if
+    queque\#@@ptr                       =                                       ( queque\#@@ptr + 1 )
+  \}
+  queque#@@ptr                          =                                       ( 0 - 1 )
+  queque#@@ctr                          =                                       ( 0 - 1 )
+}
+macro addQueque                         queque,                                 item
+{
+  match , item
+  \{
+    display '[asm:queque] nothing to add!', 10
+    err
+  \}
+  local y
+  queque#@@ctr                          =                                       ( queque#@@ctr + 1 )
+  y                                     =                                       ( queque#@@ctr )
+  macro queque
+  \{
+    queque
+    if ( defined y )
+      if ( y = queque#@@ptr )
+        item
+      end if
+    end if
+  \}
+}
+struc ctrQueque                         queque
+{
+  .                                     =                                       ( queque#@@ctr + 1 )
+}
+struc ptrQueque                         queque
+{
+  .                                     =                                       ( queque#@@ptr )
+}

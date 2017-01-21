@@ -1,0 +1,701 @@
+;( functions parameter (when linked with external libraries) )
+;call @function()
+syscall@@lib0arg                        equ                                     rdi
+syscall@@lib0arg_d                      equ                                     edi
+syscall@@lib0arg_w                      equ                                     di
+syscall@@lib0arg_b                      equ                                     dil
+syscall@@lib1arg                        equ                                     rsi
+syscall@@lib1arg_d                      equ                                     esi
+syscall@@lib1arg_w                      equ                                     si
+syscall@@lib1arg_b                      equ                                     sil
+syscall@@lib2arg                        equ                                     rdx
+syscall@@lib2arg_d                      equ                                     edx
+syscall@@lib2arg_w                      equ                                     dx
+syscall@@lib2arg_b                      equ                                     dl
+syscall@@lib2arg_l                      equ                                     dl
+syscall@@lib2arg_h                      equ                                     dh
+syscall@@lib3arg                        equ                                     rcx
+syscall@@lib3arg_d                      equ                                     ecx
+syscall@@lib3arg_w                      equ                                     cx
+syscall@@lib3arg_b                      equ                                     cl
+syscall@@lib3arg_l                      equ                                     cl
+syscall@@lib3arg_h                      equ                                     ch
+syscall@@lib4arg                        equ                                     r8
+syscall@@lib4arg_d                      equ                                     r8d
+syscall@@lib4arg_w                      equ                                     r8w
+syscall@@lib4arg_b                      equ                                     r8b
+syscall@@lib5arg                        equ                                     r9
+syscall@@lib5arg_d                      equ                                     r9d
+syscall@@lib5arg_w                      equ                                     r9w
+syscall@@lib5arg_b                      equ                                     r9b
+syscall@@lib0ret                        equ                                     rax
+syscall@@lib0ret_d                      equ                                     eax
+syscall@@lib0ret_w                      equ                                     ax
+syscall@@lib0ret_b                      equ                                     al
+syscall@@lib0ret_l                      equ                                     al
+syscall@@lib0ret_h                      equ                                     ah
+syscall@@lib1ret                        equ                                     rdx
+syscall@@lib1ret_d                      equ                                     edx
+syscall@@lib1ret_w                      equ                                     dx
+syscall@@lib1ret_b                      equ                                     dl
+syscall@@lib1ret_l                      equ                                     dl
+syscall@@lib1ret_h                      equ                                     dh
+;( registers for syscalls )
+;{
+;:  rax                                 sysNumber                               sys0ret
+;:  rbx                                 ignored                                 preserved
+;:  rcx                                 ignored                                 return-adress
+;:  rdx                                 sys2arg                                 sys1ret
+;:  rdi                                 sys0arg                                 unknown
+;:  rsi                                 sys1arg                                 unknown
+;:  rbp                                 ignored                                 preserved
+;:  rsp                                 ignored                                 preserved
+;:  r8                                  sys4arg                                 unknown
+;:  r9                                  sys5arg                                 unknown
+;:  r10                                 sys3arg                                 unknown
+;:  r11                                 ignored                                 return-flags
+;:  r12                                 ignored                                 preserved
+;:  r13                                 ignored                                 preserved
+;:  r14                                 ignored                                 preserved
+;:  r15                                 ignored                                 preserved
+;}
+syscall@@sysNumber                      equ                                     rax
+syscall@@sys0arg                        equ                                     rdi
+syscall@@sys0arg_d                      equ                                     edi
+syscall@@sys0arg_w                      equ                                     di
+syscall@@sys0arg_b                      equ                                     dil
+syscall@@sys1arg                        equ                                     rsi
+syscall@@sys1arg_d                      equ                                     esi
+syscall@@sys1arg_w                      equ                                     si
+syscall@@sys1arg_b                      equ                                     sil
+syscall@@sys2arg                        equ                                     rdx
+syscall@@sys2arg_d                      equ                                     edx
+syscall@@sys2arg_w                      equ                                     dx
+syscall@@sys2arg_b                      equ                                     dl
+syscall@@sys2arg_l                      equ                                     dl
+syscall@@sys2arg_h                      equ                                     dh
+syscall@@sys3arg                        equ                                     r10
+syscall@@sys3arg_d                      equ                                     r10d
+syscall@@sys3arg_w                      equ                                     r10w
+syscall@@sys3arg_b                      equ                                     r10b
+syscall@@sys4arg                        equ                                     r8
+syscall@@sys4arg_d                      equ                                     r8d
+syscall@@sys4arg_w                      equ                                     r8w
+syscall@@sys4arg_b                      equ                                     r8b
+syscall@@sys5arg                        equ                                     r9
+syscall@@sys5arg_d                      equ                                     r9d
+syscall@@sys5arg_w                      equ                                     r9w
+syscall@@sys5arg_b                      equ                                     r9b
+syscall@@sys0ret                        equ                                     rax
+syscall@@sys0ret_d                      equ                                     eax
+syscall@@sys0ret_w                      equ                                     ax
+syscall@@sys0ret_b                      equ                                     al
+syscall@@sys0ret_l                      equ                                     al
+syscall@@sys0ret_h                      equ                                     ah
+syscall@@sys1ret                        equ                                     rdx
+syscall@@sys1ret_d                      equ                                     edx
+syscall@@sys1ret_w                      equ                                     dx
+syscall@@sys1ret_b                      equ                                     dl
+syscall@@sys1ret_l                      equ                                     dl
+syscall@@sys1ret_h                      equ                                     dh
+syscall@@sys_read                       =                                       0
+syscall@@sys_write                      =                                       1
+syscall@@sys_open                       =                                       2
+syscall@@sys_close                      =                                       3
+syscall@@sys_stat                       =                                       4
+syscall@@sys_fstat                      =                                       5
+syscall@@sys_lstat                      =                                       6
+syscall@@sys_poll                       =                                       7
+syscall@@sys_lseek                      =                                       8
+syscall@@sys_mmap                       =                                       9
+syscall@@sys_mprotect                   =                                       10
+syscall@@sys_munmap                     =                                       11
+syscall@@sys_brk                        =                                       12
+syscall@@sys_rt_sigaction               =                                       13
+syscall@@sys_rt_sigprocmask             =                                       14
+syscall@@sys_rt_sigreturn               =                                       15
+syscall@@sys_ioctl                      =                                       16
+syscall@@sys_pread64                    =                                       17
+syscall@@sys_pwrite64                   =                                       18
+syscall@@sys_readv                      =                                       19
+syscall@@sys_writev                     =                                       20
+syscall@@sys_access                     =                                       21
+syscall@@sys_pipe                       =                                       22
+syscall@@sys_select                     =                                       23
+syscall@@sys_sched_yield                =                                       24
+syscall@@sys_mremap                     =                                       25
+syscall@@sys_msync                      =                                       26
+syscall@@sys_mincore                    =                                       27
+syscall@@sys_madvise                    =                                       28
+syscall@@sys_shmget                     =                                       29
+syscall@@sys_shmat                      =                                       30
+syscall@@sys_shmctl                     =                                       31
+syscall@@sys_dup                        =                                       32
+syscall@@sys_dup2                       =                                       33
+syscall@@sys_pause                      =                                       34
+syscall@@sys_nanosleep                  =                                       35
+syscall@@sys_getitimer                  =                                       36
+syscall@@sys_alarm                      =                                       37
+syscall@@sys_setitimer                  =                                       38
+syscall@@sys_getpid                     =                                       39
+syscall@@sys_sendfile                   =                                       40
+syscall@@sys_socket                     =                                       41
+syscall@@sys_connect                    =                                       42
+syscall@@sys_accept                     =                                       43
+syscall@@sys_sendto                     =                                       44
+syscall@@sys_recvfrom                   =                                       45
+syscall@@sys_sendmsg                    =                                       46
+syscall@@sys_recvmsg                    =                                       47
+syscall@@sys_shutdown                   =                                       48
+syscall@@sys_bind                       =                                       49
+syscall@@sys_listen                     =                                       50
+syscall@@sys_getsockname                =                                       51
+syscall@@sys_getpeername                =                                       52
+syscall@@sys_socketpair                 =                                       53
+syscall@@sys_setsockopt                 =                                       54
+syscall@@sys_getsockopt                 =                                       55
+syscall@@sys_clone                      =                                       56
+syscall@@sys_fork                       =                                       57
+syscall@@sys_vfork                      =                                       58
+syscall@@sys_execve                     =                                       59
+syscall@@sys_exit                       =                                       60
+syscall@@sys_wait4                      =                                       61
+syscall@@sys_kill                       =                                       62
+syscall@@sys_uname                      =                                       63
+syscall@@sys_semget                     =                                       64
+syscall@@sys_semop                      =                                       65
+syscall@@sys_semctl                     =                                       66
+syscall@@sys_shmdt                      =                                       67
+syscall@@sys_msgget                     =                                       68
+syscall@@sys_msgsnd                     =                                       69
+syscall@@sys_msgrcv                     =                                       70
+syscall@@sys_msgctl                     =                                       71
+syscall@@sys_fcntl                      =                                       72
+syscall@@sys_flock                      =                                       73
+syscall@@sys_fsync                      =                                       74
+syscall@@sys_fdatasync                  =                                       75
+syscall@@sys_truncate                   =                                       76
+syscall@@sys_ftruncate                  =                                       77
+syscall@@sys_getdents                   =                                       78
+syscall@@sys_getcwd                     =                                       79
+syscall@@sys_chdir                      =                                       80
+syscall@@sys_fchdir                     =                                       81
+syscall@@sys_rename                     =                                       82
+syscall@@sys_mkdir                      =                                       83
+syscall@@sys_rmdir                      =                                       84
+syscall@@sys_creat                      =                                       85
+syscall@@sys_link                       =                                       86
+syscall@@sys_unlink                     =                                       87
+syscall@@sys_symlink                    =                                       88
+syscall@@sys_readlink                   =                                       89
+syscall@@sys_chmod                      =                                       90
+syscall@@sys_fchmod                     =                                       91
+syscall@@sys_chown                      =                                       92
+syscall@@sys_fchown                     =                                       93
+syscall@@sys_lchown                     =                                       94
+syscall@@sys_umask                      =                                       95
+syscall@@sys_gettimeofday               =                                       96
+syscall@@sys_getrlimit                  =                                       97
+syscall@@sys_getrusage                  =                                       98
+syscall@@sys_sysinfo                    =                                       99
+syscall@@sys_times                      =                                       100
+syscall@@sys_ptrace                     =                                       101
+syscall@@sys_getuid                     =                                       102
+syscall@@sys_syslog                     =                                       103
+syscall@@sys_getgid                     =                                       104
+syscall@@sys_setuid                     =                                       105
+syscall@@sys_setgid                     =                                       106
+syscall@@sys_geteuid                    =                                       107
+syscall@@sys_getegid                    =                                       108
+syscall@@sys_setpgid                    =                                       109
+syscall@@sys_getppid                    =                                       110
+syscall@@sys_getpgrp                    =                                       111
+syscall@@sys_setsid                     =                                       112
+syscall@@sys_setreuid                   =                                       113
+syscall@@sys_setregid                   =                                       114
+syscall@@sys_getgroups                  =                                       115
+syscall@@sys_setgroups                  =                                       116
+syscall@@sys_setresuid                  =                                       117
+syscall@@sys_getresuid                  =                                       118
+syscall@@sys_setresgid                  =                                       119
+syscall@@sys_getresgid                  =                                       120
+syscall@@sys_getpgid                    =                                       121
+syscall@@sys_setfsuid                   =                                       122
+syscall@@sys_setfsgid                   =                                       123
+syscall@@sys_getsid                     =                                       124
+syscall@@sys_capget                     =                                       125
+syscall@@sys_capset                     =                                       126
+syscall@@sys_rt_sigpending              =                                       127
+syscall@@sys_rt_sigtimedwait            =                                       128
+syscall@@sys_rt_sigqueueinfo            =                                       129
+syscall@@sys_rt_sigsuspend              =                                       130
+syscall@@sys_sigaltstack                =                                       131
+syscall@@sys_utime                      =                                       132
+syscall@@sys_mknod                      =                                       133
+syscall@@sys_uselib                     =                                       134
+syscall@@sys_personality                =                                       135
+syscall@@sys_ustat                      =                                       136
+syscall@@sys_statfs                     =                                       137
+syscall@@sys_fstatfs                    =                                       138
+syscall@@sys_sysfs                      =                                       139
+syscall@@sys_getpriority                =                                       140
+syscall@@sys_setpriority                =                                       141
+syscall@@sys_sched_setparam             =                                       142
+syscall@@sys_sched_getparam             =                                       143
+syscall@@sys_sched_setscheduler         =                                       144
+syscall@@sys_sched_getscheduler         =                                       145
+syscall@@sys_sched_get_priority_max     =                                       146
+syscall@@sys_sched_get_priority_min     =                                       147
+syscall@@sys_sched_rr_get_interval      =                                       148
+syscall@@sys_mlock                      =                                       149
+syscall@@sys_munlock                    =                                       150
+syscall@@sys_mlockall                   =                                       151
+syscall@@sys_munlockall                 =                                       152
+syscall@@sys_vhangup                    =                                       153
+syscall@@sys_modify_ldt                 =                                       154
+syscall@@sys_pivot_root                 =                                       155
+syscall@@sys__sysctl                    =                                       156
+syscall@@sys_prctl                      =                                       157
+syscall@@sys_arch_prctl                 =                                       158
+syscall@@sys_adjtimex                   =                                       159
+syscall@@sys_setrlimit                  =                                       160
+syscall@@sys_chroot                     =                                       161
+syscall@@sys_sync                       =                                       162
+syscall@@sys_acct                       =                                       163
+syscall@@sys_settimeofday               =                                       164
+syscall@@sys_mount                      =                                       165
+syscall@@sys_umount2                    =                                       166
+syscall@@sys_swapon                     =                                       167
+syscall@@sys_swapoff                    =                                       168
+syscall@@sys_reboot                     =                                       169
+syscall@@sys_sethostname                =                                       170
+syscall@@sys_setdomainname              =                                       171
+syscall@@sys_iopl                       =                                       172
+syscall@@sys_ioperm                     =                                       173
+syscall@@sys_create_module              =                                       174
+syscall@@sys_init_module                =                                       175
+syscall@@sys_delete_module              =                                       176
+syscall@@sys_get_kernel_syms            =                                       177
+syscall@@sys_query_module               =                                       178
+syscall@@sys_quotactl                   =                                       179
+syscall@@sys_nfsservctl                 =                                       180
+syscall@@sys_getpmsg                    =                                       181
+syscall@@sys_putpmsg                    =                                       182
+syscall@@sys_afs_syscall                =                                       183
+syscall@@sys_tuxcall                    =                                       184
+syscall@@sys_security                   =                                       185
+syscall@@sys_gettid                     =                                       186
+syscall@@sys_readahead                  =                                       187
+syscall@@sys_setxattr                   =                                       188
+syscall@@sys_lsetxattr                  =                                       189
+syscall@@sys_fsetxattr                  =                                       190
+syscall@@sys_getxattr                   =                                       191
+syscall@@sys_lgetxattr                  =                                       192
+syscall@@sys_fgetxattr                  =                                       193
+syscall@@sys_listxattr                  =                                       194
+syscall@@sys_llistxattr                 =                                       195
+syscall@@sys_flistxattr                 =                                       196
+syscall@@sys_removexattr                =                                       197
+syscall@@sys_lremovexattr               =                                       198
+syscall@@sys_fremovexattr               =                                       199
+syscall@@sys_tkill                      =                                       200
+syscall@@sys_time                       =                                       201
+syscall@@sys_futex                      =                                       202
+syscall@@sys_sched_setaffinity          =                                       203
+syscall@@sys_sched_getaffinity          =                                       204
+syscall@@sys_set_thread_area            =                                       205
+syscall@@sys_io_setup                   =                                       206
+syscall@@sys_io_destroy                 =                                       207
+syscall@@sys_io_getevents               =                                       208
+syscall@@sys_io_submit                  =                                       209
+syscall@@sys_io_cancel                  =                                       210
+syscall@@sys_get_thread_area            =                                       211
+syscall@@sys_lookup_dcookie             =                                       212
+syscall@@sys_epoll_create               =                                       213
+syscall@@sys_epoll_ctl_old              =                                       214
+syscall@@sys_epoll_wait_old             =                                       215
+syscall@@sys_remap_file_pages           =                                       216
+syscall@@sys_getdents64                 =                                       217
+syscall@@sys_set_tid_address            =                                       218
+syscall@@sys_restart_syscall            =                                       219
+syscall@@sys_semtimedop                 =                                       220
+syscall@@sys_fadvise64                  =                                       221
+syscall@@sys_timer_create               =                                       222
+syscall@@sys_timer_settime              =                                       223
+syscall@@sys_timer_gettime              =                                       224
+syscall@@sys_timer_getoverrun           =                                       225
+syscall@@sys_timer_delete               =                                       226
+syscall@@sys_clock_settime              =                                       227
+syscall@@sys_clock_gettime              =                                       228
+syscall@@sys_clock_getres               =                                       229
+syscall@@sys_clock_nanosleep            =                                       230
+syscall@@sys_exit_group                 =                                       231
+syscall@@sys_epoll_wait                 =                                       232
+syscall@@sys_epoll_ctl                  =                                       233
+syscall@@sys_tgkill                     =                                       234
+syscall@@sys_utimes                     =                                       235
+syscall@@sys_vserver                    =                                       236
+syscall@@sys_vserver                    =                                       236
+syscall@@sys_mbind                      =                                       237
+syscall@@sys_set_mempolicy              =                                       238
+syscall@@sys_get_mempolicy              =                                       239
+syscall@@sys_mq_open                    =                                       240
+syscall@@sys_mq_unlink                  =                                       241
+syscall@@sys_mq_timedsend               =                                       242
+syscall@@sys_mq_timedreceive            =                                       243
+syscall@@sys_mq_notify                  =                                       244
+syscall@@sys_mq_getsetattr              =                                       245
+syscall@@sys_kexec_load                 =                                       246
+syscall@@sys_waitid                     =                                       247
+syscall@@sys_add_key                    =                                       248
+syscall@@sys_request_key                =                                       249
+syscall@@sys_keyctl                     =                                       250
+syscall@@sys_ioprio_set                 =                                       251
+syscall@@sys_ioprio_get                 =                                       252
+syscall@@sys_inotify_init               =                                       253
+syscall@@sys_inotify_add_watch          =                                       254
+syscall@@sys_inotify_rm_watch           =                                       255
+syscall@@sys_migrate_pages              =                                       256
+syscall@@sys_openat                     =                                       257
+syscall@@sys_mkdirat                    =                                       258
+syscall@@sys_mknodat                    =                                       259
+syscall@@sys_fchownat                   =                                       260
+syscall@@sys_futimesat                  =                                       261
+syscall@@sys_newfstatat                 =                                       262
+syscall@@sys_unlinkat                   =                                       263
+syscall@@sys_renameat                   =                                       264
+syscall@@sys_linkat                     =                                       265
+syscall@@sys_symlinkat                  =                                       266
+syscall@@sys_readlinkat                 =                                       267
+syscall@@sys_fchmodat                   =                                       268
+syscall@@sys_faccessat                  =                                       269
+syscall@@sys_pselect6                   =                                       270
+syscall@@sys_ppoll                      =                                       271
+syscall@@sys_unshare                    =                                       272
+syscall@@sys_set_robust_list            =                                       273
+syscall@@sys_get_robust_list            =                                       274
+syscall@@sys_splice                     =                                       275
+syscall@@sys_tee                        =                                       276
+syscall@@sys_sync_file_range            =                                       277
+syscall@@sys_vmsplice                   =                                       278
+syscall@@sys_move_pages                 =                                       279
+syscall@@sys_utimensat                  =                                       280
+syscall@@sys_epoll_pwait                =                                       281
+syscall@@sys_signalfd                   =                                       282
+syscall@@sys_timerfd_create             =                                       283
+syscall@@sys_eventfd                    =                                       284
+syscall@@sys_fallocate                  =                                       285
+syscall@@sys_timerfd_settime            =                                       286
+syscall@@sys_timerfd_gettime            =                                       287
+syscall@@sys_accept4                    =                                       288
+syscall@@sys_signalfd4                  =                                       289
+syscall@@sys_eventfd2                   =                                       290
+syscall@@sys_epoll_create1              =                                       291
+syscall@@sys_dup3                       =                                       292
+syscall@@sys_pipe2                      =                                       293
+syscall@@sys_inotify_init1              =                                       294
+syscall@@sys_preadv                     =                                       295
+syscall@@sys_pwritev                    =                                       296
+syscall@@sys_rt_tgsigqueueinfo          =                                       297
+syscall@@sys_perf_event_open            =                                       298
+syscall@@sys_recvmmsg                   =                                       299
+syscall@@sys_fanotify_init              =                                       300
+syscall@@sys_fanotify_mark              =                                       301
+syscall@@sys_prlimit64                  =                                       302
+syscall@@sys_name_to_handle_at          =                                       303
+syscall@@sys_open_by_handle_at          =                                       304
+syscall@@sys_clock_adjtime              =                                       305
+syscall@@sys_syncfs                     =                                       306
+syscall@@sys_sendmmsg                   =                                       307
+syscall@@sys_setns                      =                                       308
+syscall@@sys_getcpu                     =                                       309
+syscall@@sys_process_vm_readv           =                                       310
+syscall@@sys_process_vm_writev          =                                       311
+syscall@@sys_kcmp                       =                                       312
+syscall@@sys_finit_module               =                                       313
+syscall@@sys_sched_setattr              =                                       314
+syscall@@sys_sched_getattr              =                                       315
+syscall@@sys_renameat2                  =                                       316
+syscall@@sys_seccomp                    =                                       317
+syscall@@sys_getrandom                  =                                       318
+syscall@@sys_memfd_create               =                                       319
+syscall@@sys_kexec_file_load            =                                       320
+syscall@@sys_bpf                        =                                       321
+syscall@@sys_syscall_max                =                                       321
+
+;( errno )
+syscall@@EPERM                          =                                       ( 0 -   1 )                   ; Operation not permitted
+syscall@@ENOENT                         =                                       ( 0 -   2 )                   ; No such file or directory
+syscall@@ESRCH                          =                                       ( 0 -   3 )                   ; No such process
+syscall@@EINTR                          =                                       ( 0 -   4 )                   ; Interrupted system call
+syscall@@EIO                            =                                       ( 0 -   5 )                   ; I/O error
+syscall@@ENXIO                          =                                       ( 0 -   6 )                   ; No such device or address
+syscall@@E2BIG                          =                                       ( 0 -   7 )                   ; Argument list too long
+syscall@@ENOEXEC                        =                                       ( 0 -   8 )                   ; Exec format error
+syscall@@EBADF                          =                                       ( 0 -   9 )                   ; Bad file number
+syscall@@ECHILD                         =                                       ( 0 -  10 )                   ; No child processes
+syscall@@EAGAIN                         =                                       ( 0 -  11 )                   ; Try again
+syscall@@ENOMEM                         =                                       ( 0 -  12 )                   ; Out of memory
+syscall@@EACCES                         =                                       ( 0 -  13 )                   ; Permission denied
+syscall@@EFAULT                         =                                       ( 0 -  14 )                   ; Bad address
+syscall@@ENOTBLK                        =                                       ( 0 -  15 )                   ; Block device required
+syscall@@EBUSY                          =                                       ( 0 -  16 )                   ; Device or resource busy
+syscall@@EEXIST                         =                                       ( 0 -  17 )                   ; File exists
+syscall@@EXDEV                          =                                       ( 0 -  18 )                   ; Cross-device link
+syscall@@ENODEV                         =                                       ( 0 -  19 )                   ; No such device
+syscall@@ENOTDIR                        =                                       ( 0 -  20 )                   ; Not a directory
+syscall@@EISDIR                         =                                       ( 0 -  21 )                   ; Is a directory
+syscall@@EINVAL                         =                                       ( 0 -  22 )                   ; Invalid argument
+syscall@@ENFILE                         =                                       ( 0 -  23 )                   ; File table overflow
+syscall@@EMFILE                         =                                       ( 0 -  24 )                   ; Too many open files
+syscall@@ENOTTY                         =                                       ( 0 -  25 )                   ; Not a typewriter
+syscall@@ETXTBSY                        =                                       ( 0 -  26 )                   ; Text file busy
+syscall@@EFBIG                          =                                       ( 0 -  27 )                   ; File too large
+syscall@@ENOSPC                         =                                       ( 0 -  28 )                   ; No space left on device
+syscall@@ESPIPE                         =                                       ( 0 -  29 )                   ; Illegal seek
+syscall@@EROFS                          =                                       ( 0 -  30 )                   ; Read-only file system
+syscall@@EMLINK                         =                                       ( 0 -  31 )                   ; Too many links
+syscall@@EPIPE                          =                                       ( 0 -  32 )                   ; Broken pipe
+syscall@@EDOM                           =                                       ( 0 -  33 )                   ; Math argument out of domain of func
+syscall@@ERANGE                         =                                       ( 0 -  34 )                   ; Math result not representable
+syscall@@EDEADLK                        =                                       ( 0 -  35 )                   ; Resource deadlock would occur
+syscall@@ENAMETOOLONG                   =                                       ( 0 -  36 )                   ; File name too long
+syscall@@ENOLCK                         =                                       ( 0 -  37 )                   ; No record locks available
+syscall@@ENOSYS                         =                                       ( 0 -  38 )                   ; Function not implemented
+syscall@@ENOTEMPTY                      =                                       ( 0 -  39 )                   ; Directory not empty
+syscall@@ELOOP                          =                                       ( 0 -  40 )                   ; Too many symbolic links encountered
+syscall@@EWOULDBLOCK                    =                                       ( 0 -  syscall@@EAGAIN )      ; Operation would block
+syscall@@ENOMSG                         =                                       ( 0 -  42 )                   ; No message of desired type
+syscall@@EIDRM                          =                                       ( 0 -  43 )                   ; Identifier removed
+syscall@@ECHRNG                         =                                       ( 0 -  44 )                   ; Channel number out of range
+syscall@@EL2NSYNC                       =                                       ( 0 -  45 )                   ; Level 2 not synchronized
+syscall@@EL3HLT                         =                                       ( 0 -  46 )                   ; Level 3 halted
+syscall@@EL3RST                         =                                       ( 0 -  47 )                   ; Level 3 reset
+syscall@@ELNRNG                         =                                       ( 0 -  48 )                   ; Link number out of range
+syscall@@EUNATCH                        =                                       ( 0 -  49 )                   ; Protocol driver not attached
+syscall@@ENOCSI                         =                                       ( 0 -  50 )                   ; No CSI structure available
+syscall@@EL2HLT                         =                                       ( 0 -  51 )                   ; Level 2 halted
+syscall@@EBADE                          =                                       ( 0 -  52 )                   ; Invalid exchange
+syscall@@EBADR                          =                                       ( 0 -  53 )                   ; Invalid request descriptor
+syscall@@EXFULL                         =                                       ( 0 -  54 )                   ; Exchange full
+syscall@@ENOANO                         =                                       ( 0 -  55 )                   ; No anode
+syscall@@EBADRQC                        =                                       ( 0 -  56 )                   ; Invalid request code
+syscall@@EBADSLT                        =                                       ( 0 -  57 )                   ; Invalid slot
+syscall@@EDEADLOCK                      =                                       ( 0 -  syscall@@EDEADLK )
+syscall@@EBFONT                         =                                       ( 0 -  59 )                   ; Bad font file format
+syscall@@ENOSTR                         =                                       ( 0 -  60 )                   ; Device not a stream
+syscall@@ENODATA                        =                                       ( 0 -  61 )                   ; No data available
+syscall@@ETIME                          =                                       ( 0 -  62 )                   ; Timer expired
+syscall@@ENOSR                          =                                       ( 0 -  63 )                   ; Out of streams resources
+syscall@@ENONET                         =                                       ( 0 -  64 )                   ; Machine is not on the network
+syscall@@ENOPKG                         =                                       ( 0 -  65 )                   ; Package not installed
+syscall@@EREMOTE                        =                                       ( 0 -  66 )                   ; Object is remote
+syscall@@ENOLINK                        =                                       ( 0 -  67 )                   ; Link has been severed
+syscall@@EADV                           =                                       ( 0 -  68 )                   ; Advertise error
+syscall@@ESRMNT                         =                                       ( 0 -  69 )                   ; Srmount error
+syscall@@ECOMM                          =                                       ( 0 -  70 )                   ; Communication error on send
+syscall@@EPROTO                         =                                       ( 0 -  71 )                   ; Protocol error
+syscall@@EMULTIHOP                      =                                       ( 0 -  72 )                   ; Multihop attempted
+syscall@@EDOTDOT                        =                                       ( 0 -  73 )                   ; RFS specific error
+syscall@@EBADMSG                        =                                       ( 0 -  74 )                   ; Not a data message
+syscall@@EOVERFLOW                      =                                       ( 0 -  75 )                   ; Value too large for defined data type
+syscall@@ENOTUNIQ                       =                                       ( 0 -  76 )                   ; Name not unique on network
+syscall@@EBADFD                         =                                       ( 0 -  77 )                   ; File descriptor in bad state
+syscall@@EREMCHG                        =                                       ( 0 -  78 )                   ; Remote address changed
+syscall@@ELIBACC                        =                                       ( 0 -  79 )                   ; Can not access a needed shared library
+syscall@@ELIBBAD                        =                                       ( 0 -  80 )                   ; Accessing a corrupted shared library
+syscall@@ELIBSCN                        =                                       ( 0 -  81 )                   ; .lib section in a.out corrupted
+syscall@@ELIBMAX                        =                                       ( 0 -  82 )                   ; Attempting to link in too many shared libraries
+syscall@@ELIBEXEC                       =                                       ( 0 -  83 )                   ; Cannot exec a shared library directly
+syscall@@EILSEQ                         =                                       ( 0 -  84 )                   ; Illegal byte sequence
+syscall@@ERESTART                       =                                       ( 0 -  85 )                   ; Interrupted system call should be restarted
+syscall@@ESTRPIPE                       =                                       ( 0 -  86 )                   ; Streams pipe error
+syscall@@EUSERS                         =                                       ( 0 -  87 )                   ; Too many users
+syscall@@ENOTSOCK                       =                                       ( 0 -  88 )                   ; Socket operation on non-socket
+syscall@@EDESTADDRREQ                   =                                       ( 0 -  89 )                   ; Destination address required
+syscall@@EMSGSIZE                       =                                       ( 0 -  90 )                   ; Message too long
+syscall@@EPROTOTYPE                     =                                       ( 0 -  91 )                   ; Protocol wrong type for socket
+syscall@@ENOPROTOOPT                    =                                       ( 0 -  92 )                   ; Protocol not available
+syscall@@EPROTONOSUPPORT                =                                       ( 0 -  93 )                   ; Protocol not supported
+syscall@@ESOCKTNOSUPPORT                =                                       ( 0 -  94 )                   ; Socket type not supported
+syscall@@EOPNOTSUPP                     =                                       ( 0 -  95 )                   ; Operation not supported on transport endpoint
+syscall@@EPFNOSUPPORT                   =                                       ( 0 -  96 )                   ; Protocol family not supported
+syscall@@EAFNOSUPPORT                   =                                       ( 0 -  97 )                   ; Address family not supported by protocol
+syscall@@EADDRINUSE                     =                                       ( 0 -  98 )                   ; Address already in use
+syscall@@EADDRNOTAVAIL                  =                                       ( 0 -  99 )                   ; Cannot assign requested address
+syscall@@ENETDOWN                       =                                       ( 0 - 100 )                   ; Network is down
+syscall@@ENETUNREACH                    =                                       ( 0 - 101 )                   ; Network is unreachable
+syscall@@ENETRESET                      =                                       ( 0 - 102 )                   ; Network dropped connection because of reset
+syscall@@ECONNABORTED                   =                                       ( 0 - 103 )                   ; Software caused connection abort
+syscall@@ECONNRESET                     =                                       ( 0 - 104 )                   ; Connection reset by peer
+syscall@@ENOBUFS                        =                                       ( 0 - 105 )                   ; No buffer space available
+syscall@@EISCONN                        =                                       ( 0 - 106 )                   ; Transport endpoint is already connected
+syscall@@ENOTCONN                       =                                       ( 0 - 107 )                   ; Transport endpoint is not connected
+syscall@@ESHUTDOWN                      =                                       ( 0 - 108 )                   ; Cannot send after transport endpoint shutdown
+syscall@@ETOOMANYREFS                   =                                       ( 0 - 109 )                   ; Too many references: cannot splice
+syscall@@ETIMEDOUT                      =                                       ( 0 - 110 )                   ; Connection timed out
+syscall@@ECONNREFUSED                   =                                       ( 0 - 111 )                   ; Connection refused
+syscall@@EHOSTDOWN                      =                                       ( 0 - 112 )                   ; Host is down
+syscall@@EHOSTUNREACH                   =                                       ( 0 - 113 )                   ; No route to host
+syscall@@EALREADY                       =                                       ( 0 - 114 )                   ; Operation already in progress
+syscall@@EINPROGRESS                    =                                       ( 0 - 115 )                   ; Operation now in progress
+syscall@@ESTALE                         =                                       ( 0 - 116 )                   ; Stale NFS file handle
+syscall@@EUCLEAN                        =                                       ( 0 - 117 )                   ; Structure needs cleaning
+syscall@@ENOTNAM                        =                                       ( 0 - 118 )                   ; Not a XENIX named type file
+syscall@@ENAVAIL                        =                                       ( 0 - 119 )                   ; No XENIX semaphores available
+syscall@@EISNAM                         =                                       ( 0 - 120 )                   ; Is a named type file
+syscall@@EREMOTEIO                      =                                       ( 0 - 121 )                   ; Remote I/O error
+syscall@@EDQUOT                         =                                       ( 0 - 122 )                   ; Quota exceeded
+syscall@@ENOMEDIUM                      =                                       ( 0 - 123 )                   ; No medium found
+syscall@@EMEDIUMTYPE                    =                                       ( 0 - 124 )                   ; Wrong medium type
+syscall@@ECANCELED                      =                                       ( 0 - 125 )                   ; Operation Canceled
+syscall@@ENOKEY                         =                                       ( 0 - 126 )                   ; Required key not available
+syscall@@EKEYEXPIRED                    =                                       ( 0 - 127 )                   ; Key has expired
+syscall@@EKEYREVOKED                    =                                       ( 0 - 128 )                   ; Key has been revoked
+syscall@@EKEYREJECTED                   =                                       ( 0 - 129 )                   ; Key was rejected by service
+syscall@@EOWNERDEAD                     =                                       ( 0 - 130 )                   ; Owner died
+syscall@@ENOTRECOVERABLE                =                                       ( 0 - 131 )                   ; State not recoverable
+syscall@@EUSERDEFINED                   =                                       ( 0 - 256 )                   ; -> 1 - 2^63: User defined errors
+
+syscall@@STDIN                          =                                       ( 0 )                                   ;standard input
+syscall@@STDOUT                         =                                       ( 1 )                                   ;standard output
+syscall@@STDERR                         =                                       ( 2 )                                   ;standard error-output
+
+syscall@@CLONE_sChild                   =                                       0x0000000000000011  ;
+syscall@@CLONE_fVM                      =                                       0x0000000000000100  ;tells the kernel to let the original process and the clone in the same memory space.
+syscall@@CLONE_fFS                      =                                       0x0000000000000200  ;both get the same file system information.
+syscall@@CLONE_fFiles                   =                                       0x0000000000000400  ;share file descriptors.
+syscall@@CLONE_fSigHand                 =                                       0x0000000000000800  ;both processes share the same signal handlers.
+syscall@@CLONE_fThread                  =                                       0x0000000000010000  ;this tells the kernel, that both processes would belong to the same thread group (be threads within the same process).
+syscall@@CLONE_fSysVSem                 =                                       0x0000000000040000  ;share system V SEM_UNDO semantics
+syscall@@CLONE_fSetTLS                  =                                       0x0000000000080000  ;create a new TLS for the child
+syscall@@CLONE_fParent_SetTID           =                                       0x0000000000100000  ;set the TID in the parent
+syscall@@CLONE_fChild_ClearTID          =                                       0x0000000000200000  ;clear the TID in the child
+
+syscall@@MMAP_pNone                     =                                       0x00
+syscall@@MMAP_pReadable                 =                                       0x01
+syscall@@MMAP_pWriteable                =                                       0x02
+syscall@@MMAP_pExecutable               =                                       0x04
+syscall@@MMAP_pR                        =                                       0x01
+syscall@@MMAP_pW                        =                                       0x02
+syscall@@MMAP_pRW                       =                                       0x03
+syscall@@MMAP_pX                        =                                       0x04
+syscall@@MMAP_pRX                       =                                       0x05
+syscall@@MMAP_pWX                       =                                       0x06
+syscall@@MMAP_pRWX                      =                                       0x07
+syscall@@MMAP_fShared                   =                                       0x01
+syscall@@MMAP_fPrivate                  =                                       0x02
+syscall@@MMAP_fAnonymous                =                                       0x20
+syscall@@MREMAP_fMayMove                =                                       0x01
+syscall@@MREMAP_fFixed                  =                                       0x02
+syscall@@MPROTECT_pNone                 =                                       0x00
+syscall@@MPROTECT_pReadable             =                                       0x01
+syscall@@MPROTECT_pWriteable            =                                       0x02
+syscall@@MPROTECT_pExecutable           =                                       0x04
+syscall@@MPROTECT_pR                    =                                       0x01
+syscall@@MPROTECT_pW                    =                                       0x02
+syscall@@MPROTECT_pRW                   =                                       0x03
+syscall@@MPROTECT_pX                    =                                       0x04
+syscall@@MPROTECT_pRX                   =                                       0x05
+syscall@@MPROTECT_pRX                   =                                       0x06
+syscall@@MPROTECT_pRWX                  =                                       0x07
+
+macro syscall@@call                     doIt,                                   arg0, arg1, arg2, arg3, arg4, arg5
+{
+  if      ( arg0 eq )
+  else if ( arg0 = 0 )
+    null                                syscall@@sys0arg
+  else
+    mov                                 syscall@@sys0arg,                       arg0
+  end if
+  if      ( arg1 eq )
+  else if ( arg1 = 0 )
+    null                                syscall@@sys1arg
+  else
+    mov                                 syscall@@sys1arg,                       arg1
+  end if
+  if      ( arg2 eq )
+  else if ( arg2 = 0 )
+    null                                syscall@@sys2arg
+  else
+    mov                                 syscall@@sys2arg,                       arg2
+  end if
+  if      ( arg3 eq )
+  else if ( arg3 = 0 )
+    null                                syscall@@sys3arg
+  else
+    mov                                 syscall@@sys3arg,                       arg3
+  end if
+  if      ( arg4 eq )
+  else if ( arg4 = 0 )
+    null                                syscall@@sys4arg
+  else
+    mov                                 syscall@@sys4arg,                       arg4
+  end if
+  if      ( arg5 eq )
+  else if ( arg5 = 0 )
+    null                                syscall@@sys5arg
+  else
+    mov                                 syscall@@sys5arg,                       arg5
+  end if
+  mov                                   rax,                                    syscall@@#doIt
+  syscall
+}
+macro syscall@@exit                     status
+{
+  if ( status eq )
+    null                                sys0arg
+  else if ( status = 0 )
+    null                                sys0arg
+  else
+    mov                                 sys0arg,                                status
+  end if
+  sys_call                              syscall@@sys_exit_group
+}
+macro syscall@@exit_thread              status
+{
+  if ( status eq )
+    null                                sys0arg
+  else if ( status = 0 )
+    null                                sys0arg
+  else
+    mov                                 sys0arg,                                status
+  end if
+  sys_call                              syscall@@sys_exit
+}
+macro syscall@@nanosleep                sec,                                    nsec
+{
+  if ( sec eq )
+    display                             '[asm] fail: seconds undefined in nanosleep!'
+    err
+  end if
+  mov                                   qword [ time.s ],                       sec
+  if ( nsec eq )
+    mov                                 qword [ time.n ],                       null
+  else
+    mov                                 qword [ time.n ],                       nsec
+  end if
+  null                                  sys1arg
+  lea                                   sys0arg,                                [ time.s ]
+  sys_call                              syscall@@sys_nanosleep
+}
+macro syscall@@clone                    func,                                   stck
+{
+  local clone_flags
+  clone_flags = \
+    syscall@@CLONE_fVM      + \
+    syscall@@CLONE_fFS      + \
+    syscall@@CLONE_fFiles   + \
+    syscall@@CLONE_fSigHand + \
+    syscall@@CLONE_fThread  + \
+    syscall@@CLONE_fSysVSem + \
+    null
+  null                                  sys4arg
+  null                                  sys3arg
+  null                                  sys2arg
+  lea                                   sys1arg,                                [ stck ]
+  mov                                   sys0arg,                                clone_flags
+  sys_call                              syscall@@sys_clone
+  flags                                 sys0ret
+  jz                                    func
+}

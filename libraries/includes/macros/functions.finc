@@ -1,0 +1,378 @@
+__isGlobal__                            equ                                     +
+__isThread__                            equ
+enum null, \
+  functions@@mOpen, \
+  functions@@mType, \
+  functions@@mName, \
+  functions@@mValue, \
+  functions@@mNext, \
+  functions@@mClose
+functions@@arguments.size               =                                       128                                     ;128 arguments per function is more than enough, i guess. change otherwise
+virtual                                 at null
+  functions@@arguments::
+    rw                                  functions@@arguments.size               ; type
+    rw                                  functions@@arguments.size               ; ?
+    rd                                  functions@@arguments.size               ; size
+    rq                                  functions@@arguments.size               ; value
+end virtual
+
+macro global                            something&
+{
+  match +, __isGlobal__
+  \{
+    irp item, something
+    \\{
+      item
+    \\}
+  \}
+  match , __isGlobal__
+  \{
+    irp item, something
+    \\{
+      __isGlobal__                      equ                                     +
+      item
+      __isGlobal__                      equ
+    \\}
+  \}
+}
+macro return                            a, d, x0, x1, x3, x4, x5, x6
+{
+  match , __isGlobal__
+  \{
+    match , __isThread__
+    \\{
+      if ( ~ ( a eq ))
+        mov                             rax,                                    a
+      end if
+      if ( ~ ( d eq ))
+        mov                             rdx,                                    d
+      end if
+      if ( ~ ( x0 eq ))
+        mov                             lib0arg,                                x0
+      end if
+      if ( ~ ( x1 eq ))
+        mov                             lib1arg,                                x1
+      end if
+      if ( ~ ( x3 eq ))
+        mov                             lib3arg,                                x3
+      end if
+      if ( ~ ( x4 eq ))
+        mov                             lib4arg,                                x4
+      end if
+      if ( ~ ( x5 eq ))
+        mov                             lib5arg,                                x5
+      end if
+      if ( ~ ( x6 eq ))
+        mov                             r10,                                    x6
+      end if
+      return
+    \\}
+    match +, __isThread__
+    \\{
+      syscall@@exit_thread
+    \\}
+  \}
+  match +, __isGlobal__
+  \{
+    display '[asm:function] could not return outside a function!', 10
+    err
+  \}
+}
+newList var@@functions
+var@@functions_count                    =                                       null
+macro var@@flist                                                                                                        ;var()
+{
+  local size, random0@rndList, random1@rndList, random2@rndList, random3@rndList, lfsrseed@rndList, tmp@rndList
+  display '[asm:var] flist....', 10
+  if ( var@@functions@@ctr + 1 )
+    tmp@rndList                         =                                       ( var@@functions@@ctr + 1 )
+    size                                =                                       2
+    lfsrseed@rndList                    =                                       null
+    random0@rndList                     __random__
+    random1@rndList                     __random__
+    random2@rndList                     __random__
+    random3@rndList                     __random__
+    while ( tmp@rndList )
+      tmp@rndList                       =                                       ( tmp@rndList shr 1 )
+      size                              =                                       ( size + 1 )
+    end while
+    while ( lfsrseed@rndList = 0 )
+      lfsrseed@rndList                  __random__
+      lfsrseed@rndList                  =                                       ( lfsrseed@rndList mod (( 1 shl size ) - 1 ))
+    end while
+    match +,-
+    \{
+      displayValue 'modulo            = 0x', ( var@@functions@@ctr + 1 )
+      displayValue 'size              = 0x', size
+      displayValue 'max:                0x', ( 1 shl size )
+      displayValue 'lfsrseed@rndList  = 0x', lfsrseed@rndList
+      displayValue 'random0@rndList   = 0x', random0@rndList
+      displayValue 'random1@rndList   = 0x', random1@rndList
+      displayValue 'random2@rndList   = 0x', random2@rndList
+    \}
+    repeat (( 1 shl size ) - 1 )
+      lfsrseed@rndList                  __GLFSR__                               lfsrseed@rndList,                               ( size )
+      ;displayValue 'lfsrseed@rndList 0x', lfsrseed@rndList
+      if ( lfsrseed@rndList <= var@@functions@@ctr + 1 )
+        tmp@rndList                     =                                       ((( lfsrseed@rndList * 2719 ) + random0@rndList ))
+        tmp@rndList                     =                                       ( tmp@rndList mod ( var@@functions@@ctr + 1 ))
+        tmp@rndList                     =                                       ((( lfsrseed@rndList * 2729 ) + random1@rndList ))
+        tmp@rndList                     =                                       ( tmp@rndList mod ( var@@functions@@ctr + 1 ))
+        tmp@rndList                     =                                       ((( lfsrseed@rndList * 2731 ) + random2@rndList ))
+        tmp@rndList                     =                                       ( tmp@rndList mod ( var@@functions@@ctr + 1 ))
+        tmp@rndList                     =                                       ((( lfsrseed@rndList * 2711 ) + random3@rndList ))
+        tmp@rndList                     =                                       ( tmp@rndList mod ( var@@functions@@ctr + 1 ))
+;        tmp@rndList                     =                                       lfsrseed@rndList
+;        displayValue '(0x', tmp@rndList
+        var@@functions                  tmp@rndList
+;        displayValue ')0x', tmp@rndList
+      end if
+    end repeat
+  end if
+}
+macro function                          something&
+{
+  match name parameter_list, something
+  \{
+    if ( defined \name#@@type )
+      display '[asm:var:function] function, thread or variable »', \`name, '« already defined!', 10
+      err
+    end if
+    local done
+    local theFunction, lsize, __content__
+    local size
+    local state, temp
+    local argument,   count_arguments, parameter,  count_parameters
+    local _type_, _size_, _value_
+    macro theFunction
+    \\{
+      local length, k, lfsrseed, random0, random1, random2, random3, ptr
+      done                              equ
+      match +, __used_#\name#__
+      \\\{
+        display 'define function ', \`name, '()', 10
+        __pad__                         16,                                     1
+        dq                              ..\#\name\#@@address
+        dw                              size
+        dw                              0x9090
+        dd                              0x90909090
+        ..\#\name\#@@address:
+        ;{
+          ;displayValue '$ 0x', ( ..#\name#@@address )
+          __isGlobal__                  equ
+          macro var@@llist_vars
+          \\\\{
+            var@@llist_reset
+          \\\\}
+          stackframe                    lsize
+          __content__
+          virtual                       at null
+            var@@llist
+            var@@llist_vars
+            lsize                       =                                       (( var@@lsize + __qword__ - 1 ) and ( 0 - __qword__ ))
+          end virtual
+          __isGlobal__                  equ                                     +
+        ;}
+        size                            =                                       ( $ - ..\#\name\#@@address )
+        done                            equ                                     +
+      \\\}
+      match , done
+      \\\{
+        display 'unused function: »', \`name, '«!', 10
+        size                            =                                       null
+        ..\#\name\#@@address            =                                       null
+      \\\}
+    \\}
+    addList                             var@@functions,                         < theFunction >
+    \name\#@@type                        equ                                     op@@tFunction
+    \name\#@@value                       =                                       ( ..\#\name\#@@address )
+    \name\#@@size                        =                                       size
+    var@@functions_count                =                                       ( var@@functions_count + 1 )
+    displayValue 'funtion()     = @0x', \name\#@@value
+    displayValue 'funtion.size  =  0x', \name\#@@size
+    macro \name                         argument_list&
+    \\{
+      count_arguments                   =                                       ( 0 - 1 )
+      state                             =                                       functions@@mOpen
+      current                           equ
+      irps argument, argument_list
+      \\\{
+        if      ( state = functions@@mOpen )
+          if ( \\\`argument eq '(' )
+            state                         =                                       functions@@mValue
+          else
+            display '[asm:functions] argument-list has to start with »(«!', 10
+            err
+          end if
+        else if ( state = functions@@mValue )
+          if ( \\\`argument eq ')' )
+            state                         =                                       functions@@mClose
+          end if
+          if (( \\\`argument eq ')' ) | ( \\\`argument eq ',' ))
+            count_arguments               =                                       ( count_arguments + 1 )
+            temp op@@type                 current
+            if ( count_arguments >= functions@@arguments.size )
+              display '[asm:functions] too many arguments! adjust functions@@arguments.size.', 10
+              err
+            else
+              store                       word temp\\\#@@type                      at functions@@arguments:(( 16 * count_arguments ) + 0 )
+              store                       word temp\\\#@@size                      at functions@@arguments:(( 16 * count_arguments ) + 4 )
+              store                       word temp\\\#@@value                     at functions@@arguments:(( 16 * count_arguments ) + 8 )
+            end if
+          end if
+        else if ( state = functions@@mClose )
+          display '[asm:functions] an unexpected thing after argument-list!', 10
+        err
+        else
+          display '[asm:functions] epic fail!', 10
+          err
+        end if
+        done                              equ
+        match =(, argument
+        \\\\{
+          current                         equ
+          done                            equ                                     +
+        \\\\}
+        match =,, argument
+        \\\\{
+          ;display ';'
+          current                         equ
+          done                            equ                                     +
+        \\\\}
+        match =), argument
+        \\\\{
+          ;display 10
+          done                            equ                                     +
+        \\\\}
+        match , done
+        \\\\{
+          ;display '»', \\\`argument, '«'
+          current                         equ                                     current argument
+        \\\\}
+      \\\}
+      count_parameters                    =                                       ( 0 - 1 )
+      state                               =                                       functions@@mOpen
+      irps parameter, parameter_list
+      \\\{
+        if      ( state = functions@@mOpen )
+          if ( \\\`parameter eq '(' )
+            state                         =                                       functions@@mType
+          else
+            display '[asm:functions] parameter-list has to start with »(«!', 10
+            err
+          end if
+        else if ( state = functions@@mType )
+          if ( \\\`parameter eq ')')
+            if ( count_parameters < null )
+              display '[asm:functions] type expected!', 10
+              err
+            else
+              state                       =                                       functions@@mClose
+            end if
+          else
+            count_parameters              =                                       ( count_parameters + 1 )
+            display 'type: ', \\\`parameter, 10
+            state                         =                                       functions@@mName
+          end if
+        else if ( state = functions@@mName )
+          display 'name: ', \\\`parameter, 10
+          state                           =                                       functions@@mNext
+          displayValue 'arg #0x', count_parameters
+          if ( count_arguments >= functions@@arguments.size )
+            display '[asm:functions] too many parameters! adjust functions@@arguments.size.', 10
+            err
+          else
+            load                          _type_  word                            from functions@@arguments:(( 16 * count_parameters ) + 0 )
+            load                          _size_  word                            from functions@@arguments:(( 16 * count_parameters ) + 4 )
+            load                          _value_ qword                           from functions@@arguments:(( 16 * count_parameters ) + 8 )
+          end if
+          displayValue '  type:   0x', _type_
+          displayValue '  size:   0x', _size_
+          displayValue '  value:  0x', _value_
+        else if ( state = functions@@mNext )
+          if      ( \\\`parameter eq ',' )
+            state                         =                                       functions@@mType
+          else if ( \\\`parameter eq ')' )
+            state                         =                                       functions@@mClose
+          end if
+        else if ( state = functions@@mClose )
+          display '[asm:functions] an unexpected thing after parameter-list!', 10
+          err
+        else
+          display '[asm:functions] epic fail!', 10
+          err
+        end if
+      \\\}
+      call                                ..\#\name\#@@address
+      __used_#\name#__                     equ                                     +
+    \\}
+  \}
+  macro __content__
+  \{
+}
+macro thread                            name,                                   argumente
+{
+  if ( defined name#@@type )
+    display '[asm:var:function] function, thread or variable »', \`name, '« already defined!', 10
+    err
+  else
+    display 'thread ', `name, '()', 10
+  end if
+  ;local __content__
+  local theFunction, lsize, __content__, size, done
+  macro theFunction
+  \{
+    done                                equ
+    match +, __used_#name#__
+    \\{
+      done                              equ                                     +
+    \\}
+    match , done
+    \\{
+      display 'unused thread: »', `name, '«!', 10
+    \\}
+    local length, k, lfsrseed, random0, random1, random2, random3, ptr
+    __pad__                             16,                                     1
+    dq                                  ..#name#@@address
+    dw                                  size
+    dw                                  0x9090
+    dd                                  0x90909090
+    ..#name#@@address:
+      ;displayValue '$ 0x', ( ..#name#@@address )
+      __isGlobal__                      equ
+      macro var@@llist_vars
+      \\{
+        var@@llist_reset
+      \\}
+      stackspace                        lsize
+      __isThread__                      equ                                     +
+      __content__
+      __isThread__                      equ
+      virtual                           at null
+        var@@llist
+        var@@llist_vars
+        lsize                           =                                       (( var@@lsize + __qword__ - 1 ) and ( 0 - __qword__ ))
+      end virtual
+      __isGlobal__                      equ                                     +
+    size                                =                                       ( $ - ..#name#@@address )
+  \}
+  addList                               var@@functions,                         < theFunction >
+  name#@@type                           equ                                     op@@tThread
+  name#@@value                          =                                       ( ..#name#@@address )
+  name#@@size                           =                                       size
+  var@@functions_count                  =                                       ( var@@functions_count + 1 )
+  ;displayValue 'thread()      = @0x', name#@@value
+  ;displayValue 'thread.size   =  0x', name#@@size
+  macro name
+  \{
+    syscall@@clone                      ..\#name\#@@address
+    __used_#name#__                     equ                                     +
+  \}
+  macro __content__
+  \{
+}
+
+func                                    fix                                     function
+end_function                            fix                                     }
+end_func                                fix                                     }
+end_thread                              fix                                     }

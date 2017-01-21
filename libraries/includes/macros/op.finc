@@ -1,0 +1,343 @@
+op@@tNothing                            =                                       0x00                                    ;empty operant
+op@@tConstant                           =                                       0x01                                    ;value                is a constant value
+op@@tString                             =                                       0x02                                    ;operant              is a constant string
+op@@tAddress                            =                                       0x03                                    ;value                is at address=value
+op@@tBuffer                             =                                       0x04                                    ;buffer/string        may lie at address=value
+op@@tPointer                            =                                       0x05                                    ;value/buffer/string  is at an address pointed by address
+op@@tVariable                           =                                       0x06                                    ;operant              is some kind of highlevel variable of fixed size
+op@@tRegister                           =                                       0x07                                    ;operant              is a register
+op@@tFunction                           =                                       0x08                                    ;operant              is a function
+op@@tThread                             =                                       0x09                                    ;operant              is a thread
+op@@tArgument                           =                                       0x0a                                    ;an argument comes after this
+op@@tTreeNode                           =                                       0x0b                                    ;its a tree-node
+op@@tOperator                           =                                       0x0c                                    ;its a operator
+op@@tStack                              =                                       0x0d                                    ;value is in the stack
+op@@tUnknown                            =                                       0xff                                    ;unknown operant, should cause an fatal error!
+macro op@@tName type, func
+{
+  if      ( type = op@@tAddress )
+    func 'address '
+  else if ( type = op@@tArgument )
+    func 'argument'
+  else if ( type = op@@tBuffer )
+    func 'buffer  '
+  else if ( type = op@@tConstant )
+    func 'constant'
+  else if ( type = op@@tFunction )
+    func 'function'
+  else if ( type = op@@tNothing )
+    func 'nothing'
+  else if ( type = op@@tOperator )
+    func 'operator'
+  else if ( type = op@@tPointer )
+    func 'pointer '
+  else if ( type = op@@tRegister )
+    func 'register'
+  else if ( type = op@@tStack )
+    func 'stack   '
+  else if ( type = op@@tString )
+    func 'string  '
+  else if ( type = op@@tThread )
+    func 'thread  '
+  else if ( type = op@@tTreeNode )
+    func 'tree-node'
+  else if ( type = op@@tVariable )
+    func 'variable'
+  else
+    func 'unknown '
+  end if
+}
+
+op@@regA                                =                                       0
+op@@regB                                =                                       3
+op@@regC                                =                                       1
+op@@regD                                =                                       2
+op@@regH                                =                                       4
+
+struc op@@object                        type,               size,               value
+{
+  .#@@type                              =                                       type
+  .#@@size                              =                                       size
+  .#@@value                             =                                       value
+}
+
+struc op@@register                      type,               size,               value
+{
+  .#@@type                              =                                       type
+  .#@@size                              =                                       size
+  .#@@value                             =                                       value
+  .#@@register                          equ                                     .
+  .#@@name                              equ                                     `.
+}
+
+rax   op@@register                      op@@tRegister,      __qword__,          op@@regA
+eax   op@@register                      op@@tRegister,      __dword__,          op@@regA
+ax    op@@register                      op@@tRegister,      __word__,           op@@regA
+al    op@@register                      op@@tRegister,      __byte__,           op@@regA
+ah    op@@register                      op@@tRegister,      __byte__,           op@@regA + op@@regH
+rcx   op@@register                      op@@tRegister,      __qword__,          op@@regC
+ecx   op@@register                      op@@tRegister,      __dword__,          op@@regC
+cx    op@@register                      op@@tRegister,      __word__,           op@@regC
+cl    op@@register                      op@@tRegister,      __byte__,           op@@regC
+ch    op@@register                      op@@tRegister,      __byte__,           op@@regC + op@@regH
+rdx   op@@register                      op@@tRegister,      __qword__,          op@@regD
+edx   op@@register                      op@@tRegister,      __dword__,          op@@regD
+dx    op@@register                      op@@tRegister,      __word__,           op@@regD
+dl    op@@register                      op@@tRegister,      __byte__,           op@@regD
+dh    op@@register                      op@@tRegister,      __byte__,           op@@regD + op@@regH
+rbx   op@@register                      op@@tRegister,      __qword__,          op@@regB
+ebx   op@@register                      op@@tRegister,      __dword__,          op@@regB
+bx    op@@register                      op@@tRegister,      __word__,           op@@regB
+bl    op@@register                      op@@tRegister,      __byte__,           op@@regB
+bh    op@@register                      op@@tRegister,      __byte__,           op@@regB + op@@regH
+
+macro displayRegister                   register
+{
+  if      ( register = op@@regA )
+    display 'rax'
+  else if ( register = op@@regB )
+    display 'rbx'
+  else if ( register = op@@regC )
+    display 'rcx'
+  else if ( register = op@@regD )
+    display 'rdx'
+  else
+    display 'unknown'
+  end if
+}
+
+registers@@l8                           equ                                     al, bl, cl, dl
+registers@@h8                           equ                                     ah, bh, ch, dh
+registers@@x8                           equ                                     registers@@l8, registers@@h8
+registers@@x16                          equ                                     ax, bx, cx, dx
+registers@@x32                          equ                                     eax, ebx, ecx, edx
+registers@@x64                          equ                                     rax, rbx, rcx, rdx
+registers@@all                          equ                                     registers@@x8, registers@@x16, registers@@x32, registers@@x64
+
+newList                                 op@@strlst
+macro op@@stradd                        object
+{
+  local size, buffer
+  if ( object#@@type eq )
+    display '[asm:op] stradd() wants an object!', 10
+    err
+  else if ( object#@@type = op@@tString )
+    if ( object#@@string eq )
+      display '[asm:op] stradd() gets an invalid string!', 10
+      err
+    else
+      virtual                           at null
+        db                              object#@@string
+        size                            =                                       ( $ )
+      end virtual
+      if ( size = object#@@size )
+        ;display 'add string!', 10
+        object#@@value                  =                                       ( buffer + 2 )
+        ;displayValue 'string  = 0x', ( buffer + 2 )
+        addList                         op@@strlst,                             < buffer db ( size and 0xff ), (( size shr 8 ) and 0xff ), object#@@string >
+      else
+        display '[asm:op] stradd() gets an corrupt string!', 10
+        err
+      end if
+    end if
+  else
+    display '[asm:op] stradd() wants an object of type string!', 10
+    err
+  end if
+}
+struc op@@type operant
+{
+  local done, size, tmp, theoperant
+  done                                  equ
+  match ==that, operant
+  \{
+    display '=operant, idk, what to do :/', 10
+    err
+    done                                equ                                     true
+    . op@@object                        op@@tUnknown,       null,               null
+  \}
+  match =|that, operant
+  \{
+    display '|operant, idk, what to do :/', 10
+    err
+    done                                equ                                     true
+    . op@@object                        op@@tUnknown,       null,               null
+  \}
+  match =~that, operant
+  \{
+    display '~operant, idk, what to do :/', 10
+    err
+    done                                equ                                     true
+    . op@@object                        op@@tUnknown,       null,               null
+  \}
+  match =+that, operant
+  \{
+    display '+operant, idk, what to do :/', 10
+    err
+    done                                equ                                     true
+    . op@@object                        op@@tUnknown,       null,               null
+  \}
+  match , operant
+  \{
+    done                                equ                                     true
+    . op@@object                        op@@tNothing,       null,               null
+  \}
+  match =*that, operant
+  \{
+    done                                equ                                     true
+    . op@@object                        op@@tBuffer,        null,               null
+  \}
+  match =*=[that=], operant
+  \{
+    done                                equ                                     true
+    . op@@object                        op@@tPointer,       null,               null
+  \}
+  match =[that=], operant
+  \{
+    done                                equ                                     true
+    . op@@object                        op@@tAddress,       null,               null
+  \}
+  match size =[that=], operant
+  \{
+    match =byte, size
+    \\{
+      done                              equ                                     true
+      . op@@object                      op@@tAddress,       __byte__,           null
+    \\}
+    match =word, size
+    \\{
+      done                              equ                                     true
+      . op@@object                      op@@tAddress,       __word__,           null
+    \\}
+    match =dword, size
+    \\{
+      done                              equ                                     true
+      . op@@object                      op@@tAddress,       __dword__,          null
+    \\}
+    match =fword, size
+    \\{
+      done                              equ                                     true
+      . op@@object                      op@@tAddress,       6,                  null
+    \\}
+    match =pword, size
+    \\{
+      done                              equ                                     true
+      . op@@object                      op@@tAddress,       6,                  null
+    \\}
+    match =qword, size
+    \\{
+      done                              equ                                     true
+      . op@@object                      op@@tAddress,       __qword__,          null
+    \\}
+    match =tbyte, size
+    \\{
+      done                              equ                                     true
+      . op@@object                      op@@tAddress,       10,                 null
+    \\}
+    match =tword, size
+    \\{
+      done                              equ                                     true
+      . op@@object                      op@@tAddress,       10,                 null
+    \\}
+    match =dqword, size
+    \\{
+      done                              equ                                     true
+      . op@@object                      op@@tAddress,       16,                 null
+    \\}
+    match =xword, size
+    \\{
+      done                              equ                                     true
+      . op@@object                      op@@tAddress,       16,                 null
+    \\}
+    match =qqword, size
+    \\{
+      done                              equ                                     true
+      . op@@object                      op@@tAddress,       32,                 null
+    \\}
+    match =yword, size
+    \\{
+      done                              equ                                     true
+      . op@@object                      op@@tAddress,       32,                 null
+    \\}
+    match , done
+    \\{
+      done                              equ                                     true
+      . op@@object                      op@@tAddress,       null,               null
+    \\}
+  \}
+  match , done
+  \{
+    if ( operant eqtype rax )
+      display 'register', 10
+      . op@@object                      operant#@@type,     operant#@@size,     operant#@@value
+      .#@@register                      equ                                     operant
+    else if ( operant eqtype 0 )
+      if      ( operant = 0 )
+        size                            =                                       0
+      else if (( operant < ( 1 shl   8 )) & (( 0 - operant ) <= ( 1 shl   7 )))
+        size                            =                                       1
+      else if (( operant < ( 1 shl  16 )) & (( 0 - operant ) <= ( 1 shl  15 )))
+        size                            =                                       2
+      else if (( operant < ( 1 shl  32 )) & (( 0 - operant ) <= ( 1 shl  31 )))
+        size                            =                                       4
+      else if (( operant < ( 1 shl  48 )) & (( 0 - operant ) <= ( 1 shl  47 )))
+        size                            =                                       6
+      else
+        size                            =                                       8
+;      else if (( operant < ( 1 shl  64 )) & (( 0 - operant ) <= ( 1 shl  63 )))
+;        size                            =                                       8
+;      else if (( operant < ( 1 shl  80 )) & (( 0 - operant ) <= ( 1 shl  79 )))
+;        size                            =                                       10
+;      else if (( operant < ( 1 shl 128 )) & (( 0 - operant ) <= ( 1 shl 127 )))
+;        size                            =                                       16
+;      else if (( operant < ( 1 shl 256 )) & (( 0 - operant ) <= ( 1 shl 255 )))
+;        size                            =                                       32
+;      else if (( operant < ( 1 shl 512 )) & (( 0 - operant ) <= ( 1 shl 511 )))
+;        size                            =                                       64
+;      else
+;       display '???'
+;       err
+      end if
+      . op@@object                      op@@tConstant,      size,               operant
+    else if ( operant eqtype '' )
+      display 'string', 10
+      virtual                           at null
+        db                              operant
+        size                            =                                       ( $ )
+      end virtual
+      . op@@object                      op@@tString,        size,               null
+      .#@@string                        equ                                     operant
+    else if ( defined operant )
+      . op@@object                      op@@tConstant,      size,               tmp
+    else if ( defined operant\#@@type )
+      display 'hello world', 10
+      . op@@object                      operant\#@@type,    operant\#@@size,    operant\#@@value
+      if ( defined operant\#@@string )
+        .#@@string                      equ                                     operant\#@@string
+      end if
+    else
+      irp item, operant
+      \\{
+        done                            equ
+        match =hex=: num, item
+        \\\{
+          done                          equ                                     true
+          displayValue 'hex:', num
+        \\\}
+        match =dec=: num, item
+        \\\{
+          done                          equ                                     true
+          displayValue 'dec:', num
+        \\\}
+        match , done
+        \\\{
+          if      ( item eqtype '' )
+            display 'str: »', item, '«.', 10
+          else if ( item eqtype 0)
+            displayValue 'chr: 0x', item
+          end if
+        \\\}
+      \\}
+    end if
+  \}
+}

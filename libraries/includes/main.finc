@@ -1,0 +1,199 @@
+null                                    =                                       ( 0 )
+false                                   fix                                     ( 0 )
+true                                    fix                                     ( 1 )
+nil                                     =                                       ( 0 - 1 )
+NANOSECONDS                             =                                       ( 1 )
+MICROSECONDS                            =                                       ( 1000 * NANOSECONDS )
+MILLISECONDS                            =                                       ( 1000 * MICROSECONDS )
+SECONDS                                 =                                       ( 1 )
+MINUTES                                 =                                       ( 60 * SECONDS )
+HOURS                                   =                                       ( 60 * HOURS )
+
+__byte__                                =                                       ( 1 )
+__word__                                =                                       ( 2 )
+__dword__                               =                                       ( 4 )
+__qword__                               =                                       ( 8 )
+
+macro enum                              init,                                   [ arg ]
+{
+  common
+    local count
+    count                               =                                       init
+  forward
+    arg                                 =                                       count
+    count                               =                                       ( count + 1 )
+}
+macro __pad__                           size,                                   mode
+{
+  local k
+  k                                     =                                       ((( $ + size - 1 ) and ( 0 - size )) - $ )
+  if ( mode eq | mode = 0 )
+    while ( k )
+      tmp                               __random__
+      if      ( k >= __qword__ )
+        k                               =                                       ( k - __qword__ )
+        dq                              tmp
+      else if ( k >= __dword__ )
+        k                               =                                       ( k - __dword__ )
+        dd                              ( tmp and 0xffffffff )
+      else if ( k >= __word__ )
+        k                               =                                       ( k - __word__ )
+        dw                              ( tmp and 0xffff )
+      else if ( k >= __byte__ )
+        k                               =                                       ( k - __byte__ )
+        db                              ( tmp and 0xff )
+      end if
+    end while
+  else if ( mode = 1 )
+    times ( k )                         nop
+  else if ( mode = 2 )
+    times ( k )                         db                                      0
+  end if
+}
+
+
+include                                 'libraries/includes/macros/display.finc'
+include                                 'libraries/includes/macros/hash.finc'
+include                                 'libraries/includes/macros/ifwhile.finc'
+include                                 'libraries/includes/macros/lists.finc'
+include                                 'libraries/includes/macros/functions.finc'
+include                                 'libraries/includes/macros/op.finc'
+include                                 'libraries/includes/macros/primes.finc'
+include                                 'libraries/includes/macros/random.finc'
+include                                 'libraries/includes/macros/var.finc'
+
+macro module module_name
+{
+  local done
+  done                                  equ
+  match any, module_name
+  \{
+    match +, __haz_#module_name#__
+    \\{
+      display '[asm:module] module »', `module_name, '« already imported.', 10
+      done                              equ                                     +
+    \\}
+    match , done
+    \\{
+      display '[asm:module] import »', `module_name, '«.', 10
+      include 'lib/headers/' # `module_name # '.fasm'
+      __haz_#module_name#__             equ                                     +
+      done                              equ                                     +
+    \\}
+  \}
+  match , done
+  \{
+    display '[asm:module] import needs a name of a module to include!', 10
+    err
+  \}
+}
+
+__done__                                equ
+match =amd64, __machine__
+{
+  page_size                             =                                       ( 4096 )
+  __pointer__                           =                                       __qword__
+  var@@type                             pointer,  dq,       rq,       __qword__,          qword,    op@@tPointer
+  done                                  equ                                     true
+  macro stackspace                      size
+  \{
+    sub                                 rsp,                                    size
+  \}
+  macro stackframe                      size
+  \{
+    push                                rbx
+    mov                                 rbx,                                    rsp
+    stackspace                          size
+  \}
+  macro return
+  \{
+    mov                                 rsp,                                    rbx
+    pop                                 rbx
+    ret
+  \}
+  macro null                            [ register ]
+  \{
+    forward
+      xor                               register,                               register
+  \}
+  macro flags                           register
+  \{
+    local rand, comp
+    rand                                __random__
+    comp                                equ
+    match , comp                        ;5 different opcodes, 3 bytes in size, still optimized
+    \\{
+      rand                              =                                       ( rand mod 3 )
+      if      ( rand = 0 )
+        or                              register,                               register
+      else if ( rand = 1 )
+        and                             register,                               register
+      else
+        test                            register,                               register
+      end if
+    \\}
+    match any, comp                     ;7 different opcodes, up to 7 bytes in size, not so optimized
+    \\{
+      rand                              =                                       ( rand and 3 )
+      if      ( rand = 0 )
+        or                              register,                               register
+      else if ( rand = 1 )
+        and                             register,                               register
+      else if ( rand = 2 )
+        cmp                             register,                               null
+      else
+        test                            register,                               register
+      end if
+    \\}
+  \}
+  match =linux, __system__
+  \{
+    include 'libraries/includes/linux/amd64/syscalls.finc'
+    __done__                            equ                                     +
+  \}
+  match , __done__
+  \{
+    display '[asm:compiler] unknown operating system: »', `__system__, '«!', 10
+    err
+  \}
+  match =elfexecutable, __format__
+  \{
+    format                                ELF64 executable
+    entry                                 __init__
+    use64
+    segment                               gnustack  readable  writeable
+    segment                               executable
+      __init__:
+      do@@init
+      include                             'source/' # __main__
+      var@@flist
+    segment                               readable  writeable
+      var@@dlist
+      var@@rlist
+    __done__                              equ                                     +
+  \}
+  match =binary, __format__
+  \{
+    format                                binary
+    use64
+    ;( code )
+    ;{
+      __init__:
+      do@@init
+      include                             'source/' # __main__
+      var@@flist
+    ;}
+    ;( data )
+    ;{
+      var@@dlist
+      var@@rlist
+    ;}
+    __done__                              equ                                     +
+  \}
+}
+match , __done__
+{
+  display '[asm:compiler] unknown format and/or machine: »', `machine, '«!', 10
+  err
+}
+

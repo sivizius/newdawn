@@ -1,0 +1,10 @@
+;( configuration )
+;{
+  ;__format__                            fix                                     elfexecutable
+  __format__                            fix                                     binary
+  __machine__                           fix                                     amd64
+  __main__                              fix                                     'main.fnord'
+  __debug__                             fix                                     true
+  __system__                            fix                                     linux
+;}
+include 'libraries/includes/main.finc'

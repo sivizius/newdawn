@@ -1,0 +1,262 @@
+macro var@@dlist                                                                                                        ;var = value
+{
+  local k
+  display '[asm:var] dlist....', 10
+}
+macro var@@rlist                                                                                                        ;var = 0
+{
+  local k
+  display '[asm:var] rlist....', 10
+}
+macro var@@llist                                                                                                        ;local var
+{
+  local k, length, lfsrseed, random
+}
+macro var@@llist_reset {}
+
+macro var@@type                         type,     ddef,     rdef,     size,     prefix,   vartype
+{
+  ;display '[asm:var] define type »', `type, '«.', 10
+  var@@#type#_type                      =                                       vartype
+  newList                               var@@d_#type#_value
+  newList                               var@@r_#type#_value
+  __local_#type#__                      =                                       null
+  macro var@@llist_reset
+  \{
+    var@@llist_reset
+    var@@#type#_ctr                     =                                       null
+  \}
+  macro var@@llist
+  \{
+    __pad__                             size,                                   1
+    .@@#type:
+      rdef                              __local_#type#__
+    var@@lsize                          =                                       ( $ )
+    var@@llist
+      k                                 =                                       ( __local_#type#__ )
+      length                            =                                       2
+      lfsrseed                          =                                       null
+      random0                           __random__
+      random1                           __random__
+      random2                           __random__
+      random3                           __random__
+      while ( k )
+        k                               =                                       ( k shr 1 )
+        length                          =                                       ( length + 1 )
+      end while
+      while ( lfsrseed = 0 )
+        lfsrseed                        __random__
+        lfsrseed                        =                                       ( lfsrseed mod (( 1 shl length ) - 1 ))
+      end while
+      match +,-
+      \\{
+        displayValue 'modulo    = 0x', __local_#type#__
+        displayValue 'size      = 0x', length
+        displayValue 'max:        0x', ( 1 shl length )
+        displayValue 'lfsrseed  = 0x', lfsrseed
+        displayValue 'random0   = 0x', random0
+        displayValue 'random1   = 0x', random1
+        displayValue 'random2   = 0x', random2
+      \\}
+    .@@#type#_ptr:
+      repeat (( 1 shl length ) - 1 )
+        lfsrseed                        __GLFSR__                               lfsrseed,                               ( length )
+        if ( lfsrseed <= __local_#type#__ )
+          k                             =                                       ((( lfsrseed * 2719 ) + random0 ))
+          k                             =                                       ( k mod ( __local_#type#__ ))
+          k                             =                                       ((( lfsrseed * 2729 ) + random1 ))
+          k                             =                                       ( k mod ( __local_#type#__ ))
+          k                             =                                       ((( lfsrseed * 2731 ) + random2 ))
+          k                             =                                       ( k mod ( __local_#type#__ ))
+          k                             =                                       ((( lfsrseed * 2711 ) + random3 ))
+          k                             =                                       ( k mod ( __local_#type#__ ))
+          k                             =                                       lfsrseed
+          dq                            ( .@@#type + (( k - 1 ) * size ))
+          ;displayValue '#0x', k
+        end if
+      end repeat
+      ;displayValue <`type, '_size: 0x'>, ( $ - .@@#type#_ptr )
+    __local_#type#__                    =                                       null
+  \}
+  macro var@@dlist
+  \{
+    var@@dlist
+    if ( var@@d_#type#_value@@ctr + 1 )
+      __pad__                           size
+      var@@d_#type#s:
+        rndList                         var@@d_#type#_value
+    else
+      var@@d_#type#s:
+    end if
+    var@@d_#type#_count@final           =                                       ( var@@d_#type#_value@@ctr + 1 )
+    display '  > var@@d_', `type, '_count@final', 10
+  \}
+  macro var@@rlist
+  \{
+    var@@rlist
+    if ( var@@r_#type#_value@@ctr + 1 )
+      __pad__                           size
+      var@@r_#type#s:
+        rndList                         var@@r_#type#_value
+    else
+      var@@r_#type#s:
+    end if
+    var@@r_#type#_count@final           =                                       ( var@@r_#type#_value@@ctr + 1 )
+  \}
+  macro type [ operant ]
+  \{
+    \common
+      \local done, buffer, ptr
+      ptr = 0
+    \forward
+      done                              equ
+      match var==val, operant
+      \\{
+        if ( defined var\\#@@type )
+          display '[asm:var:', `type, '] function or variable »', \\`var, '« already defined!', 10
+          err
+        else
+          ;display 'add »', \\`var, '«', 10
+        end if
+        done                            equ                                     true
+        match ==, __isGlobal__
+        \\\{
+          addList                       var@@d_#type#_value,                    < buffer ddef val >
+          var\#@@value                  equ                                     buffer
+        \\\}
+        match , __isGlobal__
+        \\\{
+          macro var@@llist_vars
+          \\\\{
+            var@@llist_vars
+            load                        ptr qword                               from ( .@@#type#_ptr + ( var@@#type#_ctr * __qword__ ))
+            var\\\\#@@value             =                                       ptr
+            var@@#type#_ctr             =                                       ( var@@#type#_ctr + 1 )
+            ;display 'local data ', `type, ' ', \\\`var, ':', 10
+            ;displayValue '  id:   0x', ( __local_#type#__ )
+            ;displayValue '  *ptr: 0x', ( ptr )
+          \\\\}
+          mov                           prefix [ rbp - var\\#@@value ],         val
+          __local_#type#__              =                                       ( __local_#type#__ + 1 )
+        \\\}
+        var\\#@@type                    equ                                     var@@#type#_type
+        var\\#@@size                    =                                       size
+      \\}
+      match , done
+      \\{
+        if ( defined operant\\#@@type )
+          display '[asm:var:', `type, '] function or variable »', \\`operant, '« already defined!', 10
+          err
+        else
+          display 'add »', \\`operant, '«', 10
+        end if
+        match ==, __isGlobal__
+        \\\{
+          addList                       var@@d_#type#_value,                    < buffer rdef 1 >
+          operant\#@@value              equ                                     buffer
+        \\\}
+        match , __isGlobal__
+        \\\{
+          macro var@@llist_vars
+          \\\\{
+            var@@llist_vars
+            load                        ptr qword                               from ( .@@#type#_ptr + ( var@@#type#_ctr * __qword__ ))
+            operant\\\\#@@value         =                                       ptr
+            var@@#type#_ctr             =                                       ( var@@#type#_ctr + 1 )
+            ;display 'local data ', `type, ' ', \\\`var, ':', 10
+            ;displayValue '  id:   0x', ( __local_#type#__ )
+            ;displayValue '  *ptr: 0x', ( ptr )
+          \\\\}
+          __local_#type#__              =                                       ( __local_#type#__ + 1 )
+        \\\}
+        operant\#@@type                 equ                                     var@@#type#_type
+        operant\#@@size                 =                                       size
+      \\}
+  \}
+}
+macro do@@init
+{
+  local loooop
+  if ( defined do@@init )
+    do@@init
+  end if
+  if ( var@@d_pointer_count@final = null )
+  else
+    lea                                 rax,                                    [ __init__ ]
+    lea                                 rsi,                                    [ var@@d_pointers ]
+    mov                                 rdx,                                    var@@d_pointer_count@final
+    loooop:
+    ;{
+      add                               qword [ rsi + __qword__ * ( rdx - 1 )], rax
+      dec                               rdx
+      jnz                               loooop
+    ;}
+  end if
+}
+
+var@@type                               qword,    dq,       rq,       __qword__,          qword,    op@@tVariable
+var@@type                               dword,    dd,       rd,       __dword__,          dword,    op@@tVariable
+var@@type                               word,     dw,       rw,       __word__,           word,     op@@tVariable
+var@@type                               byte,     db,       rb,       __byte__,           byte,     op@@tVariable
+
+macro var@@dlist
+{
+  op@@stroff:
+    rndList                             op@@strlst
+;  var@@d_strings:
+;    rndList                             var@@d_string_value
+  var@@dlist
+}
+newList op@@strlst
+macro string operant, [ rest ]
+{
+  local done, size, buffer
+  done                                  equ
+  match var==val, operant
+  \{
+    if ( defined var\#@@type )
+      display '[asm:var:string] function or variable »', \`var, '« already defined!', 10
+      err
+    else
+      ;display 'add »', \`var, '«', 10
+    end if
+    done                                equ                                     true
+    virtual                             at null
+      db                                val
+      match any, rest
+      \\{
+        db                              rest
+      \\}
+      size                              =                                       ( $ )
+    end virtual
+    match , rest
+    \\{
+      addList                           op@@strlst,                             < buffer db ( size and 0xff ), (( size shr 8 ) and 0xff ), val >
+    \\}
+    match any, rest
+    \\{
+      addList                           op@@strlst,                             < buffer db ( size and 0xff ), (( size shr 8 ) and 0xff ), val, rest >
+    \\}
+    pointer var\#@@pointer = ( buffer + 2 - __init__ )
+    var\#@@type                         equ                                     op@@tBuffer
+    var\#@@size                         =                                       size
+    var\#@@value                        =                                       var\#@@pointer@@value
+
+    displayValue '*string = 0x', ( buffer + 2 - __init__ + __init__ * 1 )
+    displayValue 'string  = 0x', var\#@@pointer@@value
+ ;   var@@d_pointer_ptr                  =                                       ( var@@d_pointer_ptr + __qword__ )
+    ;var@@d_pointer_ptr                  =                                       ( var@@d_pointer_ptr + __dword__ )
+;    var@@d_string_ptr                   =                                       ( var@@d_string_ptr + 2 + size )
+  \}
+  match , done
+  \{
+    if ( defined operant\#@@type )
+      display '[asm:var:string] function or variable »', \`operant, '« already defined!', 10
+      err
+    else
+      display 'add »', \`operant, '«', 10
+    end if
+    pointer var\#@@pointer
+;    qword operant\#@@pointer
+  \}
+}

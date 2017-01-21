@@ -1,0 +1,51 @@
+macro displayValue                      string,                                 value
+{
+  display                               string
+  displayHex                            ( value )
+  display                               10
+}
+macro displayHex                        value
+{
+  local                                 char
+  repeat 16
+    char                                =                                       ( '0' + ((( value ) shr ( 64 - ( % * 4 ))) and 0x0f ))
+    if ( char > '9' )
+      char                              =                                       ( char + 'a' - '9' - 1 )
+    end if
+    display                             char
+  end repeat
+}
+macro displayHex4                       value
+{
+  local                                 char
+  repeat 8
+    char                                =                                       ( '0' + ((( value ) shr ( 32 - ( % * 4 ))) and 0x0f ))
+    if ( char > '9' )
+      char                              =                                       ( char + 'a' - '9' - 1 )
+    end if
+    display                             char
+  end repeat
+}
+macro displayHex2                       value
+{
+  local                                 char
+  repeat 4
+    char                                =                                       ( '0' + ((( value ) shr ( 16 - ( % * 4 ))) and 0x0f ))
+    if ( char > '9' )
+      char                              =                                       ( char + 'a' - '9' - 1 )
+    end if
+    display                             char
+  end repeat
+}
+macro displayHex1                       value
+{
+  local                                 char
+  repeat 2
+    char                                =                                       ( '0' + ((( value ) shr (  8 - ( % * 4 ))) and 0x0f ))
+    if ( char > '9' )
+      char                              =                                       ( char + 'a' - '9' - 1 )
+    end if
+    display                             char
+  end repeat
+}
+
