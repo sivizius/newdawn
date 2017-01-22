@@ -93,6 +93,7 @@ match =amd64, __machine__
 {
   page_size                             =                                       ( 4096 )
   __pointer__                           =                                       __qword__
+  int                                   equ                                     qword
   var@@type                             pointer,  dq,       rq,       __qword__,          qword,    op@@tPointer
   done                                  equ                                     true
   macro stackspace                      size

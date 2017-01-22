@@ -282,6 +282,9 @@ macro function                          something&
           if ( count_arguments >= functions@@arguments.size )
             display '[asm:functions] too many parameters! adjust functions@@arguments.size.', 10
             err
+          else if ( count_arguments > count_parameters )
+            display '[asm:functions] too many arguments', 10
+            err
           else
             load                        _type_  word                            from functions@@arguments:(( 16 * count_parameters ) + 0 )
             load                        _size_  word                            from functions@@arguments:(( 16 * count_parameters ) + 4 )
